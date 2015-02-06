@@ -1,6 +1,6 @@
 ###  CMakeLists.txt; coding: utf-8 --- 
 
-#  Author(s):<christophe.prudhomme@feelpp.org>
+#  Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
 #       Date: 06 Feb 2015
 #
 #  Copyright (C) 2015 Feel++ Consortium
@@ -22,5 +22,8 @@
 #
 #
 
-add_subdirectory(navierstokes)
-add_subdirectory(stokes)
+
+feelpp_add_application( qs_stokes SRCS qs_stokes.cpp INCLUDE_IN_ALL CFG qs_stokes.cfg )
+install(TARGETS feelpp_qs_stokes DESTINATION bin/ COMPONENT Bin )
+
+add_dependencies(quickstart feelpp_qs_stokes)

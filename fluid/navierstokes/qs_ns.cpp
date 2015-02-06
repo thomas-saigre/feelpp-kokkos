@@ -5,7 +5,7 @@
    Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
    Date     : Tue Feb 25 12:13:15 2014
 
-   Copyright (C) 2014 Feel++ Consortium
+   Copyright (C) 2014-2015 Feel++ Consortium
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -36,11 +36,12 @@ int main(int argc, char**argv )
                      _about=about(_name="qs_ns",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
-
+    constexpr int dim = FEELPP_ORDER;
     tic();
     auto mesh = loadMesh( new Mesh<Simplex<2>> );
     CHECK( mesh->hasMarkers( {"wall","inlet"} ) ) << "Mesh markers wall or inlet are not set properly in "  << soption("gmsh.filename");
     toc("mesh");tic();
+    // Taylor Hood P2 velocity P1  pressure space
     auto Vh = THch<1>( mesh );
     auto U = Vh->element();
     auto V = Vh->element();
@@ -72,6 +73,9 @@ int main(int argc, char**argv )
     auto e = exporter( _mesh=mesh );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
 
+    BoundaryConditions bcs;
+    map_vector_field<dim,1,2> m_dirichlet { bcs.getVectorFields<dim> ( "velocity", "Dirichlet" ) };
+    
     toc("bdf, forms,...");
 
     for ( mybdf->start();  mybdf->isFinished() == false; mybdf->next(U) )
@@ -87,10 +91,12 @@ int main(int argc, char**argv )
         auto rhsu =  bdf_poly.element<0>();
         auto extrap = mybdf->poly();
         auto extrapu = extrap.element<0>();
+        // add BDF term to the right hand side from previous time steps
         ft = integrate( _range=elements(mesh), _expr=(trans(idv(rhsu))*id(u) ) );
         toc("update rhs");tic();
 
-        at = a;
+        at.zero();
+        at += a;
         at += integrate( _range=elements( mesh ), _expr= trans(gradt(u)*idv(extrapu))*id(v) );
         at+=on(_range=markedfaces(mesh,"wall"), _rhs=ft, _element=u,
                _expr=zero<2,1>() );
