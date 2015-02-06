@@ -36,13 +36,14 @@ int main(int argc, char**argv )
                      _about=about(_name="qs_ns",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
-    constexpr int dim = FEELPP_ORDER;
+    constexpr int dim = FEELPP_DIM;
+    constexpr int p_order = FEELPP_ORDER;
     tic();
-    auto mesh = loadMesh( new Mesh<Simplex<2>> );
+    auto mesh = loadMesh( new Mesh<Simplex<dim>> );
     CHECK( mesh->hasMarkers( {"wall","inlet"} ) ) << "Mesh markers wall or inlet are not set properly in "  << soption("gmsh.filename");
     toc("mesh");tic();
-    // Taylor Hood P2 velocity P1  pressure space
-    auto Vh = THch<1>( mesh );
+    // Taylor Hood P_N+1 velocity P_N  pressure space (N==p_order)
+    auto Vh = THch<p_order>( mesh );
     auto U = Vh->element();
     auto V = Vh->element();
     auto u = U.element<0>();
@@ -74,7 +75,7 @@ int main(int argc, char**argv )
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
 
     BoundaryConditions bcs;
-    map_vector_field<dim,1,2> m_dirichlet { bcs.getVectorFields<dim> ( "velocity", "Dirichlet" ) };
+    map_vector_field<dim,1,2> dirichlet_conditions { bcs.getVectorFields<dim> ( "velocity", "Dirichlet" ) };
     
     toc("bdf, forms,...");
 
@@ -98,10 +99,10 @@ int main(int argc, char**argv )
         at.zero();
         at += a;
         at += integrate( _range=elements( mesh ), _expr= trans(gradt(u)*idv(extrapu))*id(v) );
-        for( auto const& dir : M_dirichlet )
+        for( auto const& condition : dirichlet_conditions )
         {
-            at+=on(_range=markedfaces(mesh,cond.marker()), _rhs=ft, _element=u,
-                   _expr=cond.expression() );
+            at+=on(_range=markedfaces(mesh,marker(condition)), _rhs=ft, _element=u,
+                   _expr=expression(condition));
         }
         toc("update lhs");tic();
         
