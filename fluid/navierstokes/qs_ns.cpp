@@ -98,13 +98,16 @@ int main(int argc, char**argv )
         at.zero();
         at += a;
         at += integrate( _range=elements( mesh ), _expr= trans(gradt(u)*idv(extrapu))*id(v) );
-        at+=on(_range=markedfaces(mesh,"wall"), _rhs=ft, _element=u,
-               _expr=zero<2,1>() );
-        at+=on(_range=markedfaces(mesh,"inlet"), _rhs=ft, _element=u,
-               _expr=-expr( soption(_name="functions.g")) *N() );
+        for( auto const& dir : M_dirichlet )
+        {
+            at+=on(_range=markedfaces(mesh,cond.marker()), _rhs=ft, _element=u,
+                   _expr=cond.expression() );
+        }
         toc("update lhs");tic();
+        
         at.solve(_rhs=ft,_solution=U);
         toc("solve");tic();
+
         w.on( _range=elements(mesh), _expr=curlv(u) );
         e->step(mybdf->time())->add( "u", u );
         e->step(mybdf->time())->add( "w", w );
