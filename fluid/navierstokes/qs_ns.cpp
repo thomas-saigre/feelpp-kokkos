@@ -74,6 +74,7 @@ int main(int argc, char**argv )
     auto e = exporter( _mesh=mesh );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
 
+    // read by default bc-file 
     BoundaryConditions bcs;
     map_vector_field<dim,1,2> dirichlet_conditions { bcs.getVectorFields<dim> ( "velocity", "Dirichlet" ) };
     
