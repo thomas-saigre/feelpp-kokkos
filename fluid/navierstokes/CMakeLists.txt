@@ -22,11 +22,9 @@
 #
 #
 
-feelpp_add_application( qs_ns_2d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG step feelpp DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
+feelpp_add_application( qs_ns_2d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG qs_ns.cfg step feelpp DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
 install(TARGETS feelpp_qs_ns_2d DESTINATION bin/ COMPONENT Bin )
-feelpp_add_application( qs_ns_3d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG step feelpp DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
+feelpp_add_application( qs_ns_3d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG step feelpp DEFS FEELPP_DIM=3 FEELPP_ORDER=2 NO_TEST )
 install(TARGETS feelpp_qs_ns_3d DESTINATION bin/ COMPONENT Bin )
-
-
 
 add_dependencies(quickstart feelpp_qs_ns_2d)
