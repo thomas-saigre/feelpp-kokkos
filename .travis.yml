@@ -4,9 +4,9 @@ language: cpp
 compiler:
 - clang
 env:
-- CXX=/usr/bin/clang++-3.4 CC=/usr/bin/clang-3.4
-- CXX=/usr/bin/clang++-3.5 CC=/usr/bin/clang-3.5
-- CXX=/usr/bin/clang++-3.7 CC=/usr/bin/clang-3.7
+- BUILD="llvm-3.4" FEELPP_CXX=/usr/bin/clang++-3.4 FEELPP_CC=/usr/bin/clang-3.4
+- BUILD="llvm-3.5" FEELPP_CXX=/usr/bin/clang++-3.5 FEELPP_CC=/usr/bin/clang-3.5
+- BUILD="llvm-3.7" FEELPP_CXX=/usr/bin/clang++-3.7 FEELPP_CC=/usr/bin/clang-3.7
 
 before_install:
 - sudo add-apt-repository -y ppa:mapnik/boost-backports-1-54
@@ -23,8 +23,10 @@ before_install:
   libcln-dev petsc-dev libxml2-dev gmsh bison flex doxygen doxygen-latex transfig
   imagemagick libtbb-dev libann-dev libglpk-dev
 - sudo apt-get install libfeel++-dev
+- export CXX=$FEELPP_CXX 
+- export CC=$FEELPP_CC
 install:
-- mkdir opt && cd opt && ../configure -r --cxxflags="-O2 -DNDEBUG"
+- mkdir opt-$BUILD && cd opt-$BUILD && ../configure -r --cxxflags="-O2 -DNDEBUG"
 script:
 - make
 branches:
