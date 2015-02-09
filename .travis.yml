@@ -1,6 +1,8 @@
 git:
   submodules: false
 language: cpp
+compiler:
+- clang
 env:
 - CXX=/usr/bin/clang++-3.4 CC=/usr/bin/clang-3.4
 - CXX=/usr/bin/clang++-3.5 CC=/usr/bin/clang-3.5
