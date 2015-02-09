@@ -38,7 +38,7 @@ endif()
 
 enable_testing()
 
-if ( NOT EXISTS check )
+if ( NOT TARGET check )
   add_custom_target(check)
 endif()
 
