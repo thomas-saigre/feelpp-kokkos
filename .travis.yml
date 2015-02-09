@@ -28,7 +28,7 @@ before_install:
 install:
 - mkdir opt-$BUILD && cd opt-$BUILD && ../configure -r --cxxflags="-O2 -DNDEBUG"
 script:
-- make
+- make VERBOSE=1
 branches:
   only:
   - master
