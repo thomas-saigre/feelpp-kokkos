@@ -15,7 +15,7 @@ before_install:
 install:
 - if [ "$CXX" = "clang++" ]; then export CXX="clang++" CC="clang";
   fi
-- mkdir opt && cd opt && ../configure -f --cxxflags="-O2 -NDEBUG"
+- mkdir opt && cd opt && ../configure -r --cxxflags="-O2 -NDEBUG"
 script:
 - make
 branches:
