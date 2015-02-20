@@ -21,7 +21,12 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <feel/feel.hpp>
+#include <feel/feelcore/core.hpp>
+#include <feel/feelpoly/poly.hpp>
+#include <feel/feeldiscr/pch.hpp>
+#include <feel/feelvf/vf.hpp>
+#include <feel/feelfilters/loadmesh.hpp>
+
 
 int main(int argc, char**argv )
 {
@@ -32,7 +37,6 @@ int main(int argc, char**argv )
                      _about=about(_name="ls_laplacian",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
-
     auto mesh = loadMesh(_mesh=new Mesh<Simplex<3>>);
     auto Vh = Pch<2>( mesh );
     auto u = Vh->element();
@@ -51,6 +55,9 @@ int main(int argc, char**argv )
     a+=on(_range=boundaryfaces(mesh), _rhs=l, _element=u, _expr=g );
     a.solve(_rhs=l,_solution=u);
 
-    LOG(INFO) << "L2 error norm : " << normL2( _range=elements(mesh), _expr=idv(u)-g );
-    LOG(INFO) << "H1 error norm : " << normH1( _range=elements(mesh), _expr=idv(u)-g, _grad_expr=gradv(u)-grad<3>(g) );
+    if ( Environment::isMasterRank() )
+    {
+        std::cout << "L2 error norm : " << normL2( _range=elements(mesh), _expr=idv(u)-g ) << "\n";
+        std::cout << "H1 error norm : " << normH1( _range=elements(mesh), _expr=idv(u)-g, _grad_expr=gradv(u)-grad<3>(g) ) << "\n";
+    }
 }

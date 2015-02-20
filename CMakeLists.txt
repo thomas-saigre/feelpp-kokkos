@@ -36,10 +36,13 @@ if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} )
   Find_Package(Feel++)
 endif()
 
+enable_testing()
+
+if ( NOT TARGET check )
+  add_custom_target(check)
+endif()
+
 add_custom_target(quickstart)
-
-
-
 
 add_custom_target(quickstart-check COMMAND "ctest" ARGS "-VV" "-R" "qs")
 add_dependencies(quickstart-check quickstart)
