@@ -1,0 +1,22 @@
+// -*- mode: javascript -*-
+{
+    "displacement":
+    {
+        
+        "Dirichlet":
+        {
+            "wall":
+            {
+                "expr":"{0,0}"
+            }
+        },
+        "Neumann":
+        {
+            "tip":
+            {
+                "expr":"{0,-1000}" 
+            }
+        }
+    }
+}
+        
