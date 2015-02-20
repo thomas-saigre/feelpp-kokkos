@@ -22,6 +22,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <feel/feel.hpp>
+#include <feel/feelpde/preconditionerblockns.hpp>
 
 int main(int argc, char**argv )
 {
@@ -30,7 +31,9 @@ int main(int argc, char**argv )
 	po::options_description qsnsoptions( "Quickstart Navier-Stokes options" );
 	qsnsoptions.add_options()
 		( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
+        ( "ns.preconditioner", po::value<std::string>()->default_value( "petsc" ), "Navier-Stokes preconditioner: petsc, PCD, PMM" )
 		;
+    qsnsoptions.add( backend_options( "ns" ) );
 	Environment env( _argc=argc, _argv=argv,
                      _desc=qsnsoptions,
                      _about=about(_name="qs_ns",
@@ -74,9 +77,19 @@ int main(int argc, char**argv )
     auto e = exporter( _mesh=mesh );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
 
-    // read by default bc-file 
-    BoundaryConditions bcs;
-    map_vector_field<dim,1,2> dirichlet_conditions { bcs.getVectorFields<dim> ( "velocity", "Dirichlet" ) };
+    /*
+     * retrieve vector fields from boundary condition factory
+     */
+    auto dirichlet_conditions = BoundaryConditionFactory::instance().getVectorFields<dim> ( "velocity", "Dirichlet" );
+    /*
+     * Navier-Stokes block preconditioners
+     */
+    auto a_blockns = blockns( _space=Vh, _type="PCD",
+                              _bc=BoundaryConditionFactory::instance(),
+                              _matrix= at.matrixPtr(),
+                              _alpha=mybdf->polyDerivCoefficient(0),
+                              _nu=doption("mu"),
+                              _prefix="velocity" );
     
     toc("bdf, forms,...");
 
@@ -106,8 +119,17 @@ int main(int argc, char**argv )
                    _expr=expression(condition));
         }
         toc("update lhs");tic();
-        
-        at.solve(_rhs=ft,_solution=U);
+
+        if ( soption("ns.preconditioner") != "petsc" )
+        {
+            a_blockns->update( at.matrixPtr(), idv(extrapu), dirichlet_conditions );
+            at.solveb(_rhs=ft,_solution=U,_backend=backend(_name="ns"),_prec=a_blockns);
+        }
+        else
+        {
+            // use petsc preconditioner
+            at.solveb(_rhs=ft,_solution=U,_backend=backend(_name="ns"));
+        }
         toc("solve");tic();
 
         w.on( _range=elements(mesh), _expr=curlv(u) );
