@@ -1,0 +1,22 @@
+// -*- mode: javascript -*-
+{
+    "displacement":
+    {
+        
+        "Dirichlet":
+        {
+            "clamped":
+            {
+                "expr":"{0,0}"
+            }
+        },
+        "Neumann":
+        {
+            "pressure":
+            {
+                "expr":"{0,-100}" 
+            }
+        }
+    }
+}
+        

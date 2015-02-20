@@ -23,5 +23,5 @@
 #
 
 
-feelpp_add_application(qs_le_2d SRCS qs_le.cpp CFG qs_le.cfg DEFS FEELPP_DIM=2 FEELPP_ORDER=2)
-feelpp_add_application(qs_le_3d SRCS qs_le.cpp CFG qs_le.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2)
+feelpp_add_application(qs_le_2d SRCS qs_le.cpp CFG qs_le.cfg beam DEFS FEELPP_DIM=2 FEELPP_ORDER=2)
+feelpp_add_application(qs_le_3d SRCS qs_le.cpp CFG qs_le.cfg beam DEFS FEELPP_DIM=3 FEELPP_ORDER=2)

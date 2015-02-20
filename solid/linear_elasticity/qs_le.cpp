@@ -63,7 +63,7 @@ int main( int argc, char** argv )
         std::cout << "lambda = " << lambda << "\n"
                   << "mu     = " << mu << "\n";
     tic();
-    auto force = expr<dim>( soption( "functions.f" ) );
+    auto force = expr<dim,1>( soption( "functions.f" ) );
     auto l = form1( _test=Xh );
     l = integrate( elements( mesh ), trans( force ) *id( v ) );
     toc("right hand side assembly");
