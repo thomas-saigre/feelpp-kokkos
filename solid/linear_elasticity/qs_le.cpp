@@ -75,7 +75,8 @@ int main( int argc, char** argv )
     a = integrate( _range=elements( mesh ),
                    _expr=lambda*divt( u )*div( v )  +
                    2.*mu*trace( trans( deft )*def ) );
-    toc("volumic terms assembly");
+    toc("volumic  terms assembly");
+
     /*
      * retrieve vector fields from boundary condition factory
      */
@@ -84,10 +85,11 @@ int main( int argc, char** argv )
     tic();
     for( auto const& n : neumann_conditions )
     {
-        a += integrate( _range=markedfaces( mesh, marker(n) ),
+        l += integrate( _range=markedfaces( mesh, marker(n) ),
                         _expr=trans(expression(n))*id(v) );
     }
     toc("neumann boundary condition terms assembly");
+
     tic();
     for( auto const& d : dirichlet_conditions )
     {
@@ -95,7 +97,9 @@ int main( int argc, char** argv )
     }
     toc("dirichlet boundary condition terms assembly");
 
+    tic();
     a.solve( _solution=u, _rhs=l );
+    toc("solve");
 
     tic();
     auto e = exporter( _mesh=mesh );
