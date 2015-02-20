@@ -49,3 +49,4 @@ add_dependencies(check quickstart-check)
 
 add_subdirectory(laplacian)
 add_subdirectory(fluid)
+add_subdirectory(solid)
