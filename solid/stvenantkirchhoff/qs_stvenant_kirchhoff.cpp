@@ -3,10 +3,10 @@
   This file is part of the Feel library
 
   Author(s): Vincent Chabannes <vincent.chabannes@feelpp.org>
+             Christophe Prud'homme <christophe.prudhomme@feelpp.org>
        Date: 2014-02-24
 
-  Copyright (C) 2008-2012 Université Joseph Fourier (Grenoble I)
-  Copyright (C) 2012-2014 Feel++ Consortium
+  Copyright (C) 2012-2015 Feel++ Consortium
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -45,9 +45,9 @@ main( int argc, char** argv )
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
                      _desc=makeOptions(),
-                     _about=about(_name="stvenant_kirchhoff2",
-                                  _author="Vincent Chabannes",
-                                  _email="vincent.chabannes@feelpp.org"));
+                     _about=about(_name="qs_sk",
+                                  _author="Feel++ Consortium",
+                                  _email="feelpp-devel@feelpp.org"));
 
     double meshSize = option(_name="gmsh.hsize").as<double>();
     double youngmodulus=option(_name="young-modulus").as<double>();
@@ -57,17 +57,11 @@ main( int argc, char** argv )
     double rho=option(_name="rho").as<double>();
     double gravityCst=option(_name="gravity-cst").as<double>();
 
-    typedef Mesh<Simplex<2,1,2> > mesh_type;
-    GeoTool::Node x1( (0.4+math::sqrt(0.0096))/2.,0.19 );
-    GeoTool::Node x2( 0.6,0.21 );
-    GeoTool::Rectangle R( meshSize,"OMEGA",x1,x2 );
-    R.setMarker(_type="line",_name="fixe",_marker4=true);
-    R.setMarker(_type="line",_name="free",_marker1=true,_marker2=true,_marker3=true);
-    R.setMarker(_type="surface",_name="Omega",_markerAll=true);
-    auto mesh = R.createMesh(_mesh=new mesh_type,
-                             _name="domainRectangle" );
-
-    auto Vh = Pchv<1>( mesh );
+    const int dim = FEELPP_DIM;
+    const int order = FEELPP_ORDER;
+    auto  mesh = loadMesh( _mesh = new Mesh<Simplex<dim>> );
+    auto Vh = Pchv<order>( mesh );
+    Vh->printInfo();
     auto u = Vh->element();
     auto v = Vh->element();
 
@@ -77,10 +71,12 @@ main( int argc, char** argv )
     auto e = exporter( _mesh=mesh );
 
     auto ts = newmark( _space=Vh, _name="structure",_rank_proc_in_files_name=true );
-    static const uint16_type nDim=2;
-    auto Id = eye<nDim,nDim>();
+    auto Id = eye<dim,dim>();
     auto gravityForce = -rho*gravityCst*oneY();
 
+    auto dirichlet_conditions = BoundaryConditionFactory::instance().getVectorFields<dim> ( "displacement", "Dirichlet" );
+    auto neumann_conditions = BoundaryConditionFactory::instance().getVectorFields<dim> ( "displacement", "Neumann" );
+    
     // start or restart
     if ( !ts->isRestart() )
     {
@@ -120,11 +116,13 @@ main( int argc, char** argv )
                                 _expr= rho*inner( ts->polyDerivCoefficient()*idt(u),id( v ) ) );
 
                 auto RR = backend()->newVector( Vh );
-                a += on( _range=markedfaces(mesh,"fixe"),
-                         _element=u, _rhs=RR,
-                         _expr=zero<nDim,1>() );
+                for( auto const& d : dirichlet_conditions )
+                {
+                    a += on( _range=markedfaces( mesh, marker(d)), _element=u, _rhs=RR,
+                             _expr=zero<dim,1>() );
+                }
             };
-        auto Residual = [=](const vector_ptrtype& X, vector_ptrtype& R)
+        auto Residual = [&](const vector_ptrtype& X, vector_ptrtype& R)
             {
                 auto u = Vh->element();
                 u = *X;
@@ -141,14 +139,31 @@ main( int argc, char** argv )
                 r += integrate( _range=elements( mesh ),
                                 _expr= rho*inner( ts->polyDerivCoefficient()*idv(u) -idv(ts->polyDeriv()),id( v ) ) );
 
+                for( auto & n : neumann_conditions )
+                {
+                    // update n with respect to the current time in case it depends on time
+                    expression(n).setParameterValues({{"t",ts->time()}});
+                    r += integrate( _range=markedfaces( mesh, marker(n) ),
+                                    _expr=trans(expression(n))*id(v) );
+                }
+
                 R->close();
                 auto temp = Vh->element();
                 temp = *R;
-                temp.on( _range=markedfaces(mesh,"fixe"),_expr=zero<nDim,1>() );
+                for( auto const& d : dirichlet_conditions )
+                {
+                    temp.on( _range=markedfaces( mesh, marker(d)), _expr=zero<dim,1>() );
+                }
                 *R = temp;
             };
-
-        u.on( _range=markedfaces(mesh,"fixe"),_expr=zero<nDim,1>() );
+        
+        // initial guess must satisfy the Dirichlet boundary conditions
+        u.zero();
+        for( auto const& d : dirichlet_conditions )
+        {
+            u.on( _range=markedfaces( mesh, marker(d)), _expr=expression(d));
+        }
+        
         backend()->nlSolver()->residual = Residual;
         backend()->nlSolver()->jacobian = Jacobian;
         backend()->nlSolve( _solution=u,_jacobian=Jac,_residual=Res );

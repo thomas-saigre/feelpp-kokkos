@@ -21,4 +21,5 @@
 #
 #
 set_directory_properties(PROPERTIES EXCLUDE_FROM_ALL TRUE)
-feelpp_add_application(qs_stvenant_kirchhoff SRCS qs_stvenant_kirchhoff.cpp CFG qs_stvenant_kirchhoff.cfg)
+feelpp_add_application(qs_stvenant_kirchhoff_2d SRCS qs_stvenant_kirchhoff.cpp CFG qs_stvenant_kirchhoff.cfg beam DEFS FEELPP_DIM=2 FEELPP_ORDER=2)
+feelpp_add_application(qs_stvenant_kirchhoff_3d SRCS qs_stvenant_kirchhoff.cpp CFG qs_stvenant_kirchhoff.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2)
