@@ -3,18 +3,29 @@
     "displacement":
     {
         
-        "Dirichlet":
+        /*"Dirichlet":
         {
             "clamped":
             {
                 "expr":"{0,0}"
             }
-        },
+        },*/
         "Neumann":
         {
             "pressure":
             {
                 "expr":"{0,0}" 
+            }
+        }
+    }
+    "displacement_y":
+    {
+        
+        "Dirichlet":
+        {
+            "clamped":
+            {
+                "expr":"0"
             }
         }
     }

@@ -21,5 +21,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 #
-add_subdirectory(stvenantkirchhoff)
-add_subdirectory(linear_elasticity)
+
+feelpp_add_application(qs_sm_2d SRCS qs_sm.cpp CFG qs_sm.cfg beam cantilever DEFS FEELPP_DIM=2 FEELPP_ORDER=2)
+feelpp_add_application(qs_sm_3d SRCS qs_sm.cpp CFG qs_sm.cfg beam tripod DEFS FEELPP_DIM=3 FEELPP_ORDER=2)
+

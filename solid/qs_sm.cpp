@@ -22,7 +22,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#include <feel/feelmodels/solid/stvenantkirchhoff.hpp>
+#include <feel/feelmodels/solid/solidmechanics.hpp>
 #include <feel/feel.hpp>
 
 int
@@ -31,8 +31,8 @@ main( int argc, char** argv )
 
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
-                     _desc=stvenantkirchhoff_options("svk"),
-                     _about=about(_name="qs_sk",
+                     _desc=solidmechanics_options("sm"),
+                     _about=about(_name="qs_sm",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
     
@@ -42,13 +42,13 @@ main( int argc, char** argv )
     auto Vh = Pchv<order>( mesh );
     Vh->printInfo();
 
-    StVenantKirchhoff<decltype(Vh)> svk( "svk", Vh );
-    svk.init();
-    // get a reference to displacement computed by svk
+    SolidMechanics<decltype(Vh)> sm( "sm", Vh );
+    sm.init();
+    // get a reference to displacement computed by sm
     // it gets updated at each solve()
-    auto const& u = svk.displacement();
+    auto const& u = sm.displacement();
 
-    auto ts = svk.ts();
+    auto ts = sm.ts();
     for ( ; !ts->isFinished(); ts->next(u) )
     {
         if ( Environment::isMasterRank() )
@@ -56,8 +56,8 @@ main( int argc, char** argv )
             std::cout << "============================================================\n";
             std::cout << "time : " << ts->time() << "s\n";
         }
-        svk.solve();
-        svk.exportResults();
+        sm.solve();
+        sm.exportResults();
     }
     
 
