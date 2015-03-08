@@ -1,0 +1,28 @@
+// -*- mode: javascript -*-
+{
+    "velocity":
+    {
+        
+        "Dirichlet":
+        {
+            "inflow":
+            {
+                "expr":"{4*Um*y*( H-y )/H^2,0}:y:Um:H"
+            },
+            "wall":
+            {
+              "expr":"{0,0}"
+            },
+            "cylinder":
+            {
+              "expr":"{0,0}"
+            }
+        },
+        "Neumann":
+        {
+            "outlet":
+            {}
+        }
+    }
+}
+        

@@ -30,7 +30,10 @@ int main(int argc, char**argv )
     using namespace Feel;
 	po::options_description qsnsoptions( "Quickstart Navier-Stokes options" );
 	qsnsoptions.add_options()
-		( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
+        ( "H", po::value<double>()->default_value( 0.41 ), "height of the channel" )
+		( "Um", po::value<double>()->default_value( 0.3 ), "max velocity at inflow" )
+        ( "mu", po::value<double>()->default_value( 1.0 ), "viscosity" )
+        ( "rho", po::value<double>()->default_value( 1.0 ), "coeff" )
         ( "ns.preconditioner", po::value<std::string>()->default_value( "petsc" ), "Navier-Stokes preconditioner: petsc, PCD, PMM" )
 		;
     qsnsoptions.add( backend_options( "ns" ) );
@@ -43,7 +46,7 @@ int main(int argc, char**argv )
     constexpr int p_order = FEELPP_ORDER;
     tic();
     auto mesh = loadMesh( new Mesh<Simplex<dim>> );
-    CHECK( mesh->hasMarkers( {"wall","inlet"} ) ) << "Mesh markers wall or inlet are not set properly in "  << soption("gmsh.filename");
+    //CHECK( mesh->hasMarkers( {"wall","inlet"} ) ) << "Mesh markers wall or inlet are not set properly in "  << soption("gmsh.filename");
     toc("mesh");tic();
     // Taylor Hood P_N+1 velocity P_N  pressure space (N==p_order)
     auto Vh = THch<p_order>( mesh );
@@ -62,9 +65,10 @@ int main(int argc, char**argv )
     }
     toc("space");tic();
 
-    auto deft = gradt( u );
-    auto def = grad( v );
+    auto deft = sym(gradt( u ));
+    auto def = sym(grad( v ));
     double mu = doption(_name="mu");
+    double rho = doption(_name="rho");
 
     auto mybdf = bdf( _space=Vh, _name="mybdf" );
 
@@ -72,7 +76,7 @@ int main(int argc, char**argv )
 
     auto a = form2( _trial=Vh, _test=Vh), at = form2( _trial=Vh, _test=Vh);
 
-    a = integrate( _range=elements( mesh ), _expr=mu*inner( deft, grad(v) ) + mybdf->polyDerivCoefficient(0)*trans(idt(u))*id(u) );
+    a = integrate( _range=elements( mesh ), _expr=mu*inner( deft, grad(v) ) + rho*mybdf->polyDerivCoefficient(0)*trans(idt(u))*id(u) );
     a +=integrate( _range=elements( mesh ), _expr=-div( v )*idt( p ) - divt( u )*id( q ) );
     auto e = exporter( _mesh=mesh );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
@@ -87,8 +91,9 @@ int main(int argc, char**argv )
     auto a_blockns = blockns( _space=Vh, _type="PCD",
                               _bc=BoundaryConditionFactory::instance(),
                               _matrix= at.matrixPtr(),
-                              _alpha=mybdf->polyDerivCoefficient(0),
-                              _nu=doption("mu"),
+                              _alpha=rho*mybdf->polyDerivCoefficient(0),
+                              _mu=mu,
+                              _rho=rho,
                               _prefix="velocity" );
     
     toc("bdf, forms,...");
@@ -107,12 +112,12 @@ int main(int argc, char**argv )
         auto extrap = mybdf->poly();
         auto extrapu = extrap.element<0>();
         // add BDF term to the right hand side from previous time steps
-        ft = integrate( _range=elements(mesh), _expr=(trans(idv(rhsu))*id(u) ) );
+        ft = integrate( _range=elements(mesh), _expr=rho*(trans(idv(rhsu))*id(u) ) );
         toc("update rhs");tic();
 
         at.zero();
         at += a;
-        at += integrate( _range=elements( mesh ), _expr= trans(gradt(u)*idv(extrapu))*id(v) );
+        at += integrate( _range=elements( mesh ), _expr= rho*trans(gradt(u)*idv(extrapu))*id(v) );
         for( auto const& condition : dirichlet_conditions )
         {
             at+=on(_range=markedfaces(mesh,marker(condition)), _rhs=ft, _element=u,
