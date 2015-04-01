@@ -1,26 +1,26 @@
 /* -*- mode: c++; coding: utf-8; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; show-trailing-whitespace: t  -*- vim:set fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 
-   This file is part of the Feel++ library
+ This file is part of the Feel++ library
 
-   Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
-   Date     : Tue Feb 25 12:13:15 2014
+ Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
+ Date     : Tue Feb 25 12:13:15 2014
 
-   Copyright (C) 2014-2015 Feel++ Consortium
+ Copyright (C) 2014-2015 Feel++ Consortium
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #include <feel/feel.hpp>
 #include <feel/feelpde/preconditionerblockns.hpp>
 
@@ -34,9 +34,10 @@ int main(int argc, char**argv )
 		( "Um", po::value<double>()->default_value( 0.3 ), "max velocity at inflow" )
         ( "mu", po::value<double>()->default_value( 1.0 ), "viscosity" )
         ( "rho", po::value<double>()->default_value( 1.0 ), "coeff" )
+        ( "stokes.preconditioner", po::value<std::string>()->default_value( "petsc" ), "Navier-Stokes preconditioner: petsc, PCD, PMM" )
         ( "ns.preconditioner", po::value<std::string>()->default_value( "petsc" ), "Navier-Stokes preconditioner: petsc, PCD, PMM" )
 		;
-    qsnsoptions.add( backend_options( "ns" ) );
+    qsnsoptions.add( backend_options( "ns" ) ).add( backend_options( "stokes" ) );
 	Environment env( _argc=argc, _argv=argv,
                      _desc=qsnsoptions,
                      _about=about(_name="qs_ns",
@@ -65,8 +66,8 @@ int main(int argc, char**argv )
     }
     toc("space");tic();
 
-    auto deft = sym(gradt( u ));
-    auto def = sym(grad( v ));
+    auto deft = gradt( u );
+    auto def = grad( v );
     double mu = doption(_name="mu");
     double rho = doption(_name="rho");
 
@@ -76,9 +77,10 @@ int main(int argc, char**argv )
 
     auto a = form2( _trial=Vh, _test=Vh), at = form2( _trial=Vh, _test=Vh);
 
-    a = integrate( _range=elements( mesh ), _expr=mu*inner( deft, grad(v) ) + rho*mybdf->polyDerivCoefficient(0)*trans(idt(u))*id(u) );
+    a = integrate( _range=elements( mesh ), _expr=mu*inner( deft, def ) );
+    //a += integrate( _range=elements( mesh ), _expr=  rho*mybdf->polyDerivCoefficient(0)*trans(idt(u))*id(u) );
     a +=integrate( _range=elements( mesh ), _expr=-div( v )*idt( p ) - divt( u )*id( q ) );
-    auto e = exporter( _mesh=mesh );
+    auto e = exporter( _mesh=mesh, _geo="static" );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
 
     /*
@@ -86,18 +88,25 @@ int main(int argc, char**argv )
      */
     auto dirichlet_conditions = BoundaryConditionFactory::instance().getVectorFields<dim> ( "velocity", "Dirichlet" );
     /*
-     * Navier-Stokes block preconditioners
+     * Navier-Stokes block preconditioner
      */
-    auto a_blockns = blockns( _space=Vh, _type="PCD",
+    at.zero();
+    at+=a;
+    for( auto const& condition : dirichlet_conditions )
+    {
+        at+=on(_range=markedfaces(mesh,marker(condition)), _rhs=ft, _element=u,
+               _expr=expression(condition));
+    }
+    auto a_blockns = blockns( _space=Vh, _type=soption("ns.preconditioner"),
                               _bc=BoundaryConditionFactory::instance(),
                               _matrix= at.matrixPtr(),
                               _alpha=rho*mybdf->polyDerivCoefficient(0),
+                              //_alpha=0,
                               _mu=mu,
                               _rho=rho,
                               _prefix="velocity" );
-    
-    toc("bdf, forms,...");
 
+    toc("bdf, forms,...");
     for ( mybdf->start();  mybdf->isFinished() == false; mybdf->next(U) )
     {
         if ( Environment::isMasterRank() )
@@ -127,7 +136,7 @@ int main(int argc, char**argv )
 
         if ( soption("ns.preconditioner") != "petsc" )
         {
-            a_blockns->update( at.matrixPtr(), idv(extrapu), dirichlet_conditions );
+            a_blockns->update( at.matrixPtr(), rho*idv(extrapu), dirichlet_conditions );
             at.solveb(_rhs=ft,_solution=U,_backend=backend(_name="ns"),_prec=a_blockns);
         }
         else
@@ -150,8 +159,6 @@ int main(int argc, char**argv )
 
     }
     //! [marker1]
-
-
 
     return 0;
 }

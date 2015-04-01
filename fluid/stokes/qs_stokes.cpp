@@ -22,61 +22,53 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <feel/feel.hpp>
+#include <feel/feelmodels/fluid/fluidmechanics.hpp>
 
 int main(int argc, char**argv )
 {
     //! [marker1]
     using namespace Feel;
-	po::options_description stokesoptions( "Stokes options" );
-	stokesoptions.add_options()
-		( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
-		;
 	Environment env( _argc=argc, _argv=argv,
-                     _desc=stokesoptions,
+                     _desc=fluidmechanics_options("Turek"),
                      _about=about(_name="qs_stokes",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
+    const int dim = FEELPP_DIM;
+    const int pressure_order = FEELPP_ORDER;
+    tic();
+    auto mesh = loadMesh( _mesh=new Mesh<Simplex<dim>> );
+    toc("mesh built");
+    tic();
+    // Taylar-Hood P_{N+1}/P_N, N=pressure_order
+    auto Vh = THch<pressure_order>( mesh );
+    toc("space built");
 
-    double meshSize = option(_name="gmsh.hsize").as<double>();
-    GeoTool::Rectangle R( meshSize,"myRectangle",GeoTool::Node(0,0),GeoTool::Node(5,1));
-    R.setMarker(_type="line",_name="inlet",_marker4=true);
-    R.setMarker(_type="line",_name="outlet",_marker2=true);
-    R.setMarker(_type="line",_name="wall",_marker1=true,_marker3=true);
-    R.setMarker(_type="surface",_name="Omega",_markerAll=true);
+    tic();
+    FluidMechanics<decltype(Vh),STOKES> fm( "Turek", Vh );
+    toc("FM built");
+    auto& U = fm.solution();
+    auto ts = fm.ts();
+    fm.init();
 
-    auto mesh = R.createMesh(_mesh=new Mesh<Simplex<2>>,_name="qs_stokes");
-
-    auto g = expr<2,1>( soption(_name="functions.g") );
-    auto Vh = THch<1>( mesh );
-    auto U = Vh->element();
-    auto V = Vh->element();
-    auto u = U.element<0>();
-    auto v = V.element<0>(g,"poiseuille");
-    auto p = U.element<1>();
-    auto q = V.element<1>();
-
-    auto deft = gradt( u );
-    auto def = grad( v );
-    double mu = doption(_name="mu");
-
-    auto l = form1( _test=Vh );
-
-    auto a = form2( _trial=Vh, _test=Vh);
-    a = integrate( _range=elements( mesh ), _expr=mu*inner( deft,def ) );
-    a +=integrate( _range=elements( mesh ), _expr=-div( v )*idt( p ) + divt( u )*id( q ) );
-
-    a+=on(_range=markedfaces(mesh,"wall"), _rhs=l, _element=u,
-          _expr=zero<2,1>() ) ;
-    a+=on(_range=markedfaces(mesh,"inlet"), _rhs=l, _element=u,
-          _expr=g );
-
-    a.solve(_rhs=l,_solution=U);
-
-    auto e = exporter( _mesh=mesh );
-    e->add( "u", u );
-    e->add( "v", v );
-    e->add( "p", p );
-    e->save();
+    if ( Environment::isMasterRank() )
+    {
+        std::cout << "------------------------------------------------------------\n";
+        std::cout << "Time\t Solve\t Export \n" ;
+    }
+    for( ; ts->isFinished(); ts->next( U ) )
+    {
+        
+        tic();
+        fm.solve();
+        double tim1 = toc("FM::solve done",false);
+        tic();
+        fm.exportResults();
+        double tim2 = toc("FM::exportResults done",false);
+        if ( Environment::isMasterRank() )
+        {
+            std::cout << ts->time() << "s\t " << tim1 << "\t " << tim2 << "\n";
+        }
+    }
     //! [marker1]
 
     return 0;
