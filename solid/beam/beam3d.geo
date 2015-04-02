@@ -1,4 +1,4 @@
-h = 0.5;
+h = 1;
 L = 5;
 R = 1;
 
@@ -23,6 +23,7 @@ Physical Line("tip") = {10};
 
 Physical Surface("clamped") = {15,37};
 Physical Surface("pressure") = {19,41};
-Physical Volume("beam") = {1,2};
+Physical Volume("Copper") = {1};
+Physical Volume("Iron") = {2};
 
 

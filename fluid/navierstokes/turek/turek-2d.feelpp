@@ -20,6 +20,7 @@
     {
         "fluid":
         {
+            "name": "fluid",
             "rho": "1", // density
             "nu": "0.001" // kinematic_viscosity
         }
