@@ -10,9 +10,9 @@
     },
     "Materials":
     {
-        "Copper":{ "filename":"copper.json" },
-        //"Iron":{ "filename":"iron.json" }
-        "Iron":{ "filename":"lead.json" }
+        "Copper":{ "filename":"$feelpp_srcdir/databases/materials/pure/copper.json" },
+        //"Iron":{ "filename":"$feelpp_srcdir/databases/materials/pure/iron.json" }
+        "Iron":{ "filename":"$feelpp_srcdir/databases/materials/pure/lead.json" }
     },
     "BoundaryConditions":
     {

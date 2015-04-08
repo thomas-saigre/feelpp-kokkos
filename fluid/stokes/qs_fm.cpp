@@ -29,8 +29,8 @@ int main(int argc, char**argv )
     //! [marker1]
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
-                     _desc=fluidmechanics_options("Turek"),
-                     _about=about(_name="qs_stokes",
+                     _desc=fluidmechanics_options("fm"),
+                     _about=about(_name="qs_fm",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
     const int dim = FEELPP_DIM;
@@ -44,18 +44,19 @@ int main(int argc, char**argv )
     toc("space built");
 
     tic();
-    FluidMechanics<decltype(Vh),STOKES> fm( "Turek", Vh );
+    FluidMechanics<decltype(Vh)> fm( "fm", Vh );
     toc("FM built");
     auto& U = fm.solution();
     auto ts = fm.ts();
     fm.init();
-
+    fm.solve();
+    fm.exportResults();
     if ( Environment::isMasterRank() )
     {
         std::cout << "------------------------------------------------------------\n";
         std::cout << "Time\t Solve\t Export \n" ;
     }
-    for( ; ts->isFinished(); ts->next( U ) )
+    for( ; !ts->isFinished(); ts->next( U ) )
     {
         
         tic();
