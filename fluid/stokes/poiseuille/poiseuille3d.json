@@ -19,7 +19,7 @@
     {
         "velocity":{
             "Dirichlet": {
-                "inflow": { "expr":"{16*Um*(H^2-(y^2+z^2))/H^2,0,0):y:z:Um:H" },
+                "inflow": { "expr":"{16*Um*(H^2-(y^2+z^2))/H^2,0,0}:y:z:Um:H" },
                 "wall": { "expr":"{0,0,0}" },
                 "cylinder": { "expr":"{0,0,0}" }
             },
