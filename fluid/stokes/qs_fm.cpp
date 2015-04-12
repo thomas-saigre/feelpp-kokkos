@@ -44,18 +44,19 @@ int main(int argc, char**argv )
     toc("space built");
 
     tic();
-    FluidMechanics<decltype(Vh)> fm( "fm", Vh );
+    FluidMechanics<decltype(Vh)> fm( "fm", Vh, FM_LINEARIZED|FM_UNSTEADY );
     toc("FM built");
     auto& U = fm.solution();
     auto ts = fm.ts();
     fm.init();
-    fm.solve();
-    fm.exportResults();
+    //fm.solve();
+    //fm.exportResults();
     if ( Environment::isMasterRank() )
     {
         std::cout << "------------------------------------------------------------\n";
         std::cout << "Time\t Solve\t Export \n" ;
     }
+    
     for( ; !ts->isFinished(); ts->next( U ) )
     {
         
@@ -70,7 +71,5 @@ int main(int argc, char**argv )
             std::cout << ts->time() << "s\t " << tim1 << "\t " << tim2 << "\n";
         }
     }
-    //! [marker1]
-
     return 0;
 }
