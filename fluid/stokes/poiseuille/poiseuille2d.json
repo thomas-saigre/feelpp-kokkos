@@ -4,7 +4,7 @@
     "Model":"Stokes",
     "Parameters":    {
         "Um": { "value":"1" },
-        "H": { "value":"1" },
+        "H": { "value":"1" }
     },
     "Materials":
     {
@@ -30,7 +30,7 @@
     }, // BoundaryConditions
     "PostProcess":
     {
-        "Fields":["pressure","velocity"],
+        "Fields":["pressure","velocity"]
     }
 }
 

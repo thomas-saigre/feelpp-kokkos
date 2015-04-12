@@ -23,10 +23,12 @@
 #
 
 
-feelpp_add_application( qs_stokes_2d SRCS qs_stokes.cpp INCLUDE_IN_ALL CFG qs_stokes.cfg DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
-feelpp_add_application( qs_stokes_3d SRCS qs_stokes.cpp INCLUDE_IN_ALL CFG qs_stokes.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
+feelpp_add_application( qs_stokes_2d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
+feelpp_add_application( qs_stokes_3d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
 install(TARGETS feelpp_qs_stokes_2d DESTINATION bin/ COMPONENT Bin )
 install(TARGETS feelpp_qs_stokes_3d DESTINATION bin/ COMPONENT Bin )
 
 add_dependencies(quickstart feelpp_qs_stokes_2d)
 add_dependencies(quickstart feelpp_qs_stokes_3d)
+
+feelpp_add_testcase(poiseuille)
