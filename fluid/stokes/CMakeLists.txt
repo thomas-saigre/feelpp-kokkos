@@ -31,4 +31,4 @@ install(TARGETS feelpp_qs_stokes_3d DESTINATION bin/ COMPONENT Bin )
 add_dependencies(quickstart feelpp_qs_stokes_2d)
 add_dependencies(quickstart feelpp_qs_stokes_3d)
 
-feelpp_add_testcase(poiseuille)
+feelpp_add_testcase(poiseuille) 
