@@ -1,4 +1,4 @@
-# Stokes
+# Stokes {#QSStokes}
 --------
 
 \snippet qs_stokes.cpp 

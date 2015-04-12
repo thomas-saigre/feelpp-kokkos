@@ -5,7 +5,7 @@
    Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
    Date     : Tue Feb 25 12:13:15 2014
 
-   Copyright (C) 2014 Feel++ Consortium
+   Copyright (C) 2014-2015 Feel++ Consortium
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -30,46 +30,30 @@ int main(int argc, char**argv )
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
                      _desc=fluidmechanics_options("fm"),
-                     _about=about(_name="qs_fm",
+                     _about=about(_name="qs_stokes",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
     const int dim = FEELPP_DIM;
     const int pressure_order = FEELPP_ORDER;
     tic();
     auto mesh = loadMesh( _mesh=new Mesh<Simplex<dim>> );
-    toc("mesh built");
+    toc("FM/Mesh built");
     tic();
     // Taylar-Hood P_{N+1}/P_N, N=pressure_order
     auto Vh = THch<pressure_order>( mesh );
-    toc("space built");
+    toc("FM/Space built");
 
     tic();
-    FluidMechanics<decltype(Vh)> fm( "fm", Vh, FM_LINEARIZED|FM_UNSTEADY );
-    toc("FM built");
-    auto& U = fm.solution();
-    auto ts = fm.ts();
-    fm.init();
-    //fm.solve();
-    //fm.exportResults();
-    if ( Environment::isMasterRank() )
-    {
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "Time\t Solve\t Export \n" ;
-    }
+    FluidMechanics<decltype(Vh)> fm( "fm", Vh );
+    toc("FM/Stokes built");
+
+    tic();
+    fm.solve();
+    toc("[FM/Stokes] solve");
+
+    tic();
+    fm.exportResults();
+    toc("[FM/Stokes] export");
     
-    for( ; !ts->isFinished(); ts->next( U ) )
-    {
-        
-        tic();
-        fm.solve();
-        double tim1 = toc("FM::solve done",false);
-        tic();
-        fm.exportResults();
-        double tim2 = toc("FM::exportResults done",false);
-        if ( Environment::isMasterRank() )
-        {
-            std::cout << ts->time() << "s\t " << tim1 << "\t " << tim2 << "\n";
-        }
-    }
     return 0;
 }

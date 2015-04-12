@@ -23,10 +23,10 @@
 #
 
 
-feelpp_add_application( qs_fm_2d SRCS qs_fm.cpp INCLUDE_IN_ALL CFG qs_fm.cfg DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
-feelpp_add_application( qs_fm_3d SRCS qs_fm.cpp INCLUDE_IN_ALL CFG qs_fm.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
-install(TARGETS feelpp_qs_fm_2d DESTINATION bin/ COMPONENT Bin )
-install(TARGETS feelpp_qs_fm_3d DESTINATION bin/ COMPONENT Bin )
+feelpp_add_application( qs_stokes_2d SRCS qs_stokes.cpp INCLUDE_IN_ALL CFG qs_stokes.cfg DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
+feelpp_add_application( qs_stokes_3d SRCS qs_stokes.cpp INCLUDE_IN_ALL CFG qs_stokes.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
+install(TARGETS feelpp_qs_stokes_2d DESTINATION bin/ COMPONENT Bin )
+install(TARGETS feelpp_qs_stokes_3d DESTINATION bin/ COMPONENT Bin )
 
-add_dependencies(quickstart feelpp_qs_fm_2d)
-add_dependencies(quickstart feelpp_qs_fm_3d)
+add_dependencies(quickstart feelpp_qs_stokes_2d)
+add_dependencies(quickstart feelpp_qs_stokes_3d)
