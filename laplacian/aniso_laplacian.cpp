@@ -57,11 +57,11 @@ int main(int argc, char**argv )
     std::cout << "Model " << soption("myModel") << " loaded." << std::endl;
 
   //! [rhs]
-  auto f = expr<DIM,2>( soption(_name="functions.f"), "f" );
+  auto f = expr( soption(_name="functions.f"), "f" );
   //! [rhs]
 
   //! [function_space]
-  auto mesh = loadMesh(_mesh=new Mesh<Simplex<DIM>>);
+  auto mesh = loadMesh(_mesh=new Mesh<Simplex<MODEL_DIM>>);
   auto Vh = Pch<2>( mesh );
   auto u = Vh->element();
   auto v = Vh->element();
@@ -92,16 +92,20 @@ int main(int argc, char**argv )
     a+=on(_range=markedfaces(mesh,it.first), _rhs=l, _element=u, _expr=it.second );
   }
   //! [boundary]
+  
+  //! [solve]
   a.solve(_rhs=l,_solution=u);
-  //# endmarker3 #
+  //! [solve]
 
-  //# marker4 #
+  //! [export]
+  if(boption("exporter.export")){
   auto e = exporter( _mesh=mesh );
   e->addRegions();
   e->add( "u", u );
   e->add( "g", v );
   e->save();
+  }
+  //! [export]
   return 0;
-  //# endmarker4 #
 }
 //! [global]
