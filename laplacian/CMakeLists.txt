@@ -30,3 +30,5 @@ feelpp_add_application( ls_laplacian SRCS ls_laplacian.cpp INCLUDE_IN_ALL CFG ls
 install(TARGETS feelpp_ls_laplacian DESTINATION bin/ COMPONENT Bin )
 
 add_dependencies(quickstart feelpp_qs_laplacian)
+
+feelpp_add_application( aniso_laplacian SRCS aniso_laplacian.cpp DEFS MODEL_DIM=2)
