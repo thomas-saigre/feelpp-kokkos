@@ -33,24 +33,28 @@ int main(int argc, char**argv )
   using namespace Feel;
   po::options_description laplacianoptions( "Laplacian options" );
   laplacianoptions.add_options()
-    ("model", po::value< std::string >()-> default_value("model"), "Name of our model")
-    ("verbose", po::value< bool >()-> default_value( true ), "Display information during execution")
+    ("myModel", po::value< std::string >()-> default_value("model"), "Name of our model")
+    ("myVerbose", po::value< bool >()-> default_value( true ), "Display information during execution")
     ;
 
   Environment env( _argc=argc, _argv=argv,
       _desc=laplacianoptions,
-      _about=about(_name="qs_laplacian",
+      _about=about(_name="aniso_laplacian",
         _author="Feel++ Consortium",
         _email="feelpp-devel@feelpp.org"));
   //! [env]
 
   //! [load_model]
-  ModelProperties model(soption("model"));
-  map_vector_field<DIM,1,2> bc_u { model.boundaryConditions().getVectorFields<DIM>("velocity","dirichlet") };
-  boost::property_tree::ptree materials; model.materials().getMaterial(materials);
+  ModelProperties model(Environment::expand(soption("myModel")));
   //! [load_model]
-  if(boption("verbose") && Environment::isMasterRank() )
-    std::cout << "Model " << soption("model") << " loaded." << std:endl;
+  //! [get_bc]
+  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("velocity","dirichlet") };
+  //! [get_bc]
+  //! [get_mat]
+  ModelMaterials materials = model.materials();
+  //! [get_mat]
+  if(boption("myVerbose") && Environment::isMasterRank() )
+    std::cout << "Model " << soption("myModel") << " loaded." << std::endl;
 
   //! [rhs]
   auto f = expr<DIM,2>( soption(_name="functions.f"), "f" );
@@ -75,13 +79,15 @@ int main(int argc, char**argv )
   //! [materials]
   for(auto it : materials)
   {
-  a = integrate(_range=elements(mesh),_expr=mu*gradt(u)*trans(grad(v)) );
+    if(boption("myVerbose") && Environment::isMasterRank() )
+      std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
+    a = integrate(_range=markedelements(mesh,it.name()),_expr=it.k11()*inner(gradt(u),grad(v)) );
   }
   //! [materials]
   
   //! [boundary]
   for(auto it : bc_u){
-    if(boption("verbose") && Environment::isMasterRank() )
+    if(boption("myVerbose") && Environment::isMasterRank() )
       std::cout << "[BC] - Applying " << it.second << " on " << it.first << std::endl;
     a+=on(_range=markedfaces(mesh,it.first), _rhs=l, _element=u, _expr=it.second );
   }

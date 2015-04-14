@@ -23,14 +23,6 @@
 #
 
 
-feelpp_add_application( qs_laplacian SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg)
-install(TARGETS feelpp_qs_laplacian DESTINATION bin/ COMPONENT Bin )
-
-feelpp_add_application( ls_laplacian SRCS ls_laplacian.cpp INCLUDE_IN_ALL CFG ls_laplacian.cfg TIMEOUT 60)
-install(TARGETS feelpp_ls_laplacian DESTINATION bin/ COMPONENT Bin )
-
-add_dependencies(quickstart feelpp_qs_laplacian)
-
-feelpp_add_application( aniso_laplacian SRCS aniso_laplacian.cpp DEFS MODEL_DIM=2)
-
-add_subdirectory(model1)
+foreach( _file aniso.cfg aniso.geo concrete.json model.mod)
+  file(COPY ${_file} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/..)
+endforeach()
