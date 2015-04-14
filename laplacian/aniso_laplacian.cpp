@@ -46,18 +46,22 @@ int main(int argc, char**argv )
 
   //! [load_model]
   ModelProperties model(soption("model"));
-  map_vector_field<DIM,1,2> bc_u { model.boundaryConditions().getVectorFields<DIM>("velocity","dirichlet") };
-  boost::property_tree::ptree materials; model.materials().getMaterial(materials);
   //! [load_model]
+  //! [get_bc]
+  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("velocity","dirichlet") };
+  //! [get_bc]
+  //! [get_mat]
+  ModelMaterials materials; model.materials();
+  //! [get_mat]
   if(boption("verbose") && Environment::isMasterRank() )
-    std::cout << "Model " << soption("model") << " loaded." << std:endl;
+    std::cout << "Model " << soption("model") << " loaded." << std::endl;
 
   //! [rhs]
-  auto f = expr<DIM,2>( soption(_name="functions.f"), "f" );
+  auto f = expr( soption(_name="functions.f"), "f" );
   //! [rhs]
 
   //! [function_space]
-  auto mesh = loadMesh(_mesh=new Mesh<Simplex<DIM>>);
+  auto mesh = loadMesh(_mesh=new Mesh<Simplex<MODEL_DIM>>);
   auto Vh = Pch<2>( mesh );
   auto u = Vh->element();
   auto v = Vh->element();
@@ -75,7 +79,9 @@ int main(int argc, char**argv )
   //! [materials]
   for(auto it : materials)
   {
-  a = integrate(_range=elements(mesh),_expr=mu*gradt(u)*trans(grad(v)) );
+    if(boption("verbose") && Environment::isMasterRank() )
+      std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
+    a = integrate(_range=markedelements(mesh,it.name()),_expr=it.k11()*inner(gradt(u),grad(v)) );
   }
   //! [materials]
   
@@ -86,16 +92,20 @@ int main(int argc, char**argv )
     a+=on(_range=markedfaces(mesh,it.first), _rhs=l, _element=u, _expr=it.second );
   }
   //! [boundary]
+  
+  //! [solve]
   a.solve(_rhs=l,_solution=u);
-  //# endmarker3 #
+  //! [solve]
 
-  //# marker4 #
+  //! [export]
+  if(boption("exporter.export")){
   auto e = exporter( _mesh=mesh );
   e->addRegions();
   e->add( "u", u );
   e->add( "g", v );
   e->save();
+  }
+  //! [export]
   return 0;
-  //# endmarker4 #
 }
 //! [global]
