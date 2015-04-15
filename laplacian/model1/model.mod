@@ -22,22 +22,7 @@
     "fluid":
     {
       "name": "Watter",
-      "rho": "0",
-      "mu": "0",
-      "Cp": "0", 
-      "Cv": "0", 
-      "k11": "42",
-      "k12": "0",
-      "k13": "0",
-      "k22": "0",
-      "k23": "0",
-      "k33": "0",
-      "Tref": "0",
-      "beta": "0",
-      "C": "0", 
-      "young_modulus": "0",
-      "nu": "0", 
-      "sigma": "0"
+      "k11": "42"
     },
     "concrete":
     {
@@ -50,24 +35,21 @@
     {
       "dirichlet":
       {
-        "inflow":
+        "inlet":
         {
-          "expr":"4*Um*y*( H-y )/H^2:y:Um:H"
+          "expr":"2"
         },
         "wall":
         {
-          "expr":"0"
+          "expr":"3"
         },
         "cylinder":
         {
-          "expr":"0"
-        }
-      },
-      "Neumann":
-      {
+          "expr":"cos(x)*sin(y):x:y"
+        },
         "outlet":
         {
-          "expr":"{0,0,0,0}"
+          "expr":"x:x"
         }
       }
     }

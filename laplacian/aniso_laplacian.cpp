@@ -54,7 +54,7 @@ int main(int argc, char**argv )
   ModelMaterials materials = model.materials();
   //! [get_mat]
   if(boption("myVerbose") && Environment::isMasterRank() )
-    std::cout << "Model " << soption("myModel") << " loaded." << std::endl;
+    std::cout << "Model " << Environment::expand( soption("myModel")) << " loaded." << std::endl;
 
   //! [rhs]
   auto f = expr( soption(_name="functions.f"), "f" );
@@ -80,8 +80,8 @@ int main(int argc, char**argv )
   for(auto it : materials)
   {
     if(boption("myVerbose") && Environment::isMasterRank() )
-      std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
-    a = integrate(_range=markedelements(mesh,it.name()),_expr=it.k11()*inner(gradt(u),grad(v)) );
+      std::cout << "[Materials] - Loading data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
+    a += integrate(_range=markedelements(mesh,it.name()),_expr=it.k11()*inner(gradt(u),grad(v)) );
   }
   //! [materials]
   
