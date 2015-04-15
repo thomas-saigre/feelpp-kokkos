@@ -82,9 +82,9 @@ int main(int argc, char**argv )
     if(boption("myVerbose") && Environment::isMasterRank() )
       std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
 #if MODEL_DIM == 2
-    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(it.k11(), it.k12(), it.k12(), it.k22() )*gradt(u),grad(v)) );
+    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(cst(it.k11()), cst(it.k12()), cst(it.k12()), cst(it.k22()) )*trans(gradt(u)),trans(grad(v))) );
 #else
-    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(it.k11(), it.k12(), it.k13(), it.k12(), it.k22(), it.k23(), it.k31(), it.k32(), it.k33())*gradt(u),grad(v)) );
+    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(cst(it.k11()), cst(it.k12()), cst(it.k13()), cst(it.k12()), cst(it.k22()), cst(it.k23()), cst(it.k31()), cst(it.k32()), cst(it.k33()))*trans(gradt(u)),trans(grad(v))) );
 #endif
   }
   //! [materials]
