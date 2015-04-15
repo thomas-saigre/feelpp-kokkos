@@ -36,4 +36,4 @@ Physical Line("inlet") = {4};
 Physical Line("outlet") = {2};
 Physical Line("wall") = {1,3};
 Physical Line("cylinder") = {5,6,7,8};
-Physical Surface("Iron") = {18};
+Physical Surface("Watter") = {18};

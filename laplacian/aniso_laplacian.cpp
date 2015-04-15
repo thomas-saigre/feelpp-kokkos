@@ -80,8 +80,12 @@ int main(int argc, char**argv )
   for(auto it : materials)
   {
     if(boption("myVerbose") && Environment::isMasterRank() )
-      std::cout << "[Materials] - Loading data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
-    a += integrate(_range=markedelements(mesh,it.name()),_expr=it.k11()*inner(gradt(u),grad(v)) );
+      std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
+#if MODEL_DIM == 2
+    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(it.k11(), it.k12(), it.k12(), it.k22() )*gradt(u),grad(v)) );
+#else
+    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(it.k11(), it.k12(), it.k13(), it.k12(), it.k22(), it.k23(), it.k31(), it.k32(), it.k33())*gradt(u),grad(v)) );
+#endif
   }
   //! [materials]
   
