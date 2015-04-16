@@ -71,7 +71,7 @@
   }, // BoundaryConditions
   "PostProcess":
   {
-    "Force":["diffused,k_11,k_33"]
+    "Fields":["diffused,k_11,k_33"]
   }
 }
 

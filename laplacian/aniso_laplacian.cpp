@@ -121,7 +121,7 @@ int main(int argc, char**argv )
 
   //! [export]
   auto e = exporter( _mesh=mesh );
-  for(auto const &it : model.postProcess()["Force"] )
+  for(auto const &it : model.postProcess()["Fields"] )
   {
     switch(it){
       case "diffused":
