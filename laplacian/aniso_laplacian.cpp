@@ -75,7 +75,7 @@ int main(int argc, char**argv )
   auto k33 = Vh->element();
 #endif
   //! [function_space]
-  
+
   //! [forms]
   auto a = form2( _trial=Vh, _test=Vh);
   auto l = form1( _test=Vh );
@@ -90,23 +90,22 @@ int main(int argc, char**argv )
   {
     if(boption("myVerbose") && Environment::isMasterRank() )
       std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
-    k11 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k11());
-    k12 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k12());
-    k22 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k22());
+    k11.on(_range=markedelements(mesh,it.name()),_expr=cst(it.k11()));
+    k12.on(_range=markedelements(mesh,it.name()),_expr=cst(it.k12()));
+    k22.on(_range=markedelements(mesh,it.name()),_expr=cst(it.k22()));
 #if MODEL_DIM == 3
-    k13 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k13());
-    k23 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k23());
-    k33 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k33());
+    k13 += vf::project(_space=Vh,_range=markedelements(mesh,it.name()),_expr=it.k13());
+    k23 += vf::project(_space=Vh,_range=markedelements(mesh,it.name()),_expr=it.k23());
+    k33 += vf::project(_space=Vh,_range=markedelements(mesh,it.name()),_expr=it.k33());
 #endif
   }
 #if MODEL_DIM == 2
-    a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k12), idv(k22) )*trans(gradt(u)),trans(grad(v))) );
+  a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k12), idv(k22) )*trans(gradt(u)),trans(grad(v))) );
 #else
-    a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k13), idv(k12), idv(k22), idv(k23), idv(k31), idv(k32), idv(k33))*trans(gradt(u)),trans(grad(v))) );
+  a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k13), idv(k12), idv(k22), idv(k23), idv(k31), idv(k32), idv(k33))*trans(gradt(u)),trans(grad(v))) );
 #endif
-  }
   //! [materials]
-  
+
   //! [boundary]
   for(auto it : bc_u){
     if(boption("myVerbose") && Environment::isMasterRank() )
@@ -114,7 +113,7 @@ int main(int argc, char**argv )
     a+=on(_range=markedfaces(mesh,it.first), _rhs=l, _element=u, _expr=it.second );
   }
   //! [boundary]
-  
+
   //! [solve]
   a.solve(_rhs=l,_solution=u);
   //! [solve]
@@ -123,32 +122,23 @@ int main(int argc, char**argv )
   auto e = exporter( _mesh=mesh );
   for(auto const &it : model.postProcess()["Fields"] )
   {
-    switch(it){
-      case "diffused":
+      if(it == "diffused") 
         e->add("diffused",u);
-        break;
-      case "k11":
-        e->add("k_11",k_11);
-        break;
-      case "k12":
-        e->add("k_12",k_12);
-        break;
-      case "k11":
-        e->add("k_22",k_22);
-        break;
+      else if(it == "k11")
+        e->add("k11",k11);
+      else if(it == "k12")
+        e->add("k12",k12);
+      else if(it == "k11")
+        e->add("k22",k22);
 #if MODEL_DIM == 3
-      case "k13":
-        e->add("k_13",k_13);
-        break;
-      case "k11":
-        e->add("k_23",k_23);
-        break;
-      case "k33":
-        e->add("k_33",k_33);
-        break;
+      else if(it == "k13")
+        e->add("k13",k13);
+      else if(it == "k11")
+        e->add("k23",k23);
+      else if(it == "k33")
+        e->add("k33",k33);
 #endif
     }
-  }
   e->save();
   //! [export]
   return 0;
