@@ -71,12 +71,7 @@
   }, // BoundaryConditions
   "PostProcess":
   {
-    "Force":["cylinder"],
-    "PressureDifference":
-    {
-      "x1":"{0.15,0.2}",
-      "x2":"{0.25,0.2}"
-    }
+    "Force":["diffused,k_11,k_33"]
   }
 }
 

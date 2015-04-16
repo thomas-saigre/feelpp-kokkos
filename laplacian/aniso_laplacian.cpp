@@ -53,6 +53,7 @@ int main(int argc, char**argv )
   //! [get_mat]
   ModelMaterials materials = model.materials();
   //! [get_mat]
+
   if(boption("myVerbose") && Environment::isMasterRank() )
     std::cout << "Model " << Environment::expand( soption("myModel")) << " loaded." << std::endl;
 
@@ -65,6 +66,14 @@ int main(int argc, char**argv )
   auto Vh = Pch<2>( mesh );
   auto u = Vh->element();
   auto v = Vh->element();
+  auto k11 = Vh->element();
+  auto k12 = Vh->element();
+  auto k22 = Vh->element();
+#if MODEL_DIM == 3
+  auto k13 = Vh->element();
+  auto k23 = Vh->element();
+  auto k33 = Vh->element();
+#endif
   //! [function_space]
   
   //! [forms]
@@ -81,10 +90,19 @@ int main(int argc, char**argv )
   {
     if(boption("myVerbose") && Environment::isMasterRank() )
       std::cout << "[Materials] - Laoding data for " << it.name() << " with diffusion coef " << it.k11() << std::endl;
+    k11 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k11());
+    k12 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k12());
+    k22 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k22());
+#if MODEL_DIM == 3
+    k13 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k13());
+    k23 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k23());
+    k33 += vf::project(_range=markedelements(mesh,it.name()),_expr=it.k33());
+#endif
+  }
 #if MODEL_DIM == 2
-    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(cst(it.k11()), cst(it.k12()), cst(it.k12()), cst(it.k22()) )*trans(gradt(u)),trans(grad(v))) );
+    a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k12), idv(k22) )*trans(gradt(u)),trans(grad(v))) );
 #else
-    a += integrate(_range=markedelements(mesh,it.name()),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(cst(it.k11()), cst(it.k12()), cst(it.k13()), cst(it.k12()), cst(it.k22()), cst(it.k23()), cst(it.k31()), cst(it.k32()), cst(it.k33()))*trans(gradt(u)),trans(grad(v))) );
+    a += integrate(_range=elements(mesh),_expr=inner(mat<MODEL_DIM,MODEL_DIM>(idv(k11), idv(k12), idv(k13), idv(k12), idv(k22), idv(k23), idv(k31), idv(k32), idv(k33))*trans(gradt(u)),trans(grad(v))) );
 #endif
   }
   //! [materials]
@@ -102,13 +120,36 @@ int main(int argc, char**argv )
   //! [solve]
 
   //! [export]
-  if(boption("exporter.export")){
   auto e = exporter( _mesh=mesh );
-  e->addRegions();
-  e->add( "u", u );
-  e->add( "g", v );
-  e->save();
+  for(auto const &it : model.postProcess()["Force"] )
+  {
+    switch(it){
+      case "diffused":
+        e->add("diffused",u);
+        break;
+      case "k11":
+        e->add("k_11",k_11);
+        break;
+      case "k12":
+        e->add("k_12",k_12);
+        break;
+      case "k11":
+        e->add("k_22",k_22);
+        break;
+#if MODEL_DIM == 3
+      case "k13":
+        e->add("k_13",k_13);
+        break;
+      case "k11":
+        e->add("k_23",k_23);
+        break;
+      case "k33":
+        e->add("k_33",k_33);
+        break;
+#endif
+    }
   }
+  e->save();
   //! [export]
   return 0;
 }
