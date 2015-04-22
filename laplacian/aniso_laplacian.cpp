@@ -97,7 +97,7 @@ int main(int argc, char**argv )
         << "[" << it.second.k13() << "," << it.second.k23() << "," << it.second.k33() << "]]" 
 #else
         << "[" << it.second.k11() << "," << it.second.k12() << "],"
-        << "[" << it.second.k12() << "," << it.second.k22() << "],"
+        << "[" << it.second.k12() << "," << it.second.k22() << "]]"
 #endif
         << std::endl;
     k11.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k11()));
@@ -130,26 +130,29 @@ int main(int argc, char**argv )
 
   //! [export]
   auto e = exporter( _mesh=mesh );
-  for(auto const &it : model.postProcess()["Fields"] )
-  {
+  for(int i = 0; i < 3; i ++){
+    for(auto const &it : model.postProcess()["Fields"] )
+    {
+      std::cout << "it = " << it << std::endl;
       if(it == "diffused") 
-        e->add("diffused",u);
+        e->step(i)->add("diffused",u);
       else if(it == "k11")
-        e->add("k11",k11);
+        e->step(i)->add("k11",k11);
       else if(it == "k12")
-        e->add("k12",k12);
+        e->step(i)->add("k12",k12);
       else if(it == "k11")
-        e->add("k22",k22);
+        e->step(i)->add("k22",k22);
 #if MODEL_DIM == 3
       else if(it == "k13")
-        e->add("k13",k13);
+        e->step(i)->add("k13",k13);
       else if(it == "k11")
-        e->add("k23",k23);
+        e->step(i)->add("k23",k23);
       else if(it == "k33")
-        e->add("k33",k33);
+        e->step(i)->add("k33",k33);
 #endif
     }
-  e->save();
+    e->save();
+  }
   //! [export]
   return 0;
 }

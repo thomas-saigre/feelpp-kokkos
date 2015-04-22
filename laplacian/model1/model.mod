@@ -57,7 +57,7 @@
         },
         "wall_in":
         {
-          "expr":"3"
+          "expr":"(x<0.55)*2+(x>0.55*4):x"
         },
         "wall_out":
         {
@@ -76,7 +76,7 @@
   }, // BoundaryConditions
   "PostProcess":
   {
-    "Fields":["diffused,k_11,k_33"]
+    "Fields":["diffused","k11","k33"]
   }
 }
 
