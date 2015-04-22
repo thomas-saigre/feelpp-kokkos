@@ -1,4 +1,4 @@
-// -*- mode: javascript -*-
+// -*- mode: javascript -*- vim:set ft=javascript:
 {
   "Name": "Turek",
   "Description":"Fluid flow around a cylinder",
@@ -41,7 +41,7 @@
     },
     "concrete":
     {
-      "filename":"$feelpp_builddir/quickstart/laplacian/concrete"
+      "filename":"$feelpp_builddir/quickstart/laplacian/concrete.json"
     }
   },
   "BoundaryConditions":
