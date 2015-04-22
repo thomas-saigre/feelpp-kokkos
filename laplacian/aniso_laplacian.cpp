@@ -133,7 +133,6 @@ int main(int argc, char**argv )
   for(int i = 0; i < 3; i ++){
     for(auto const &it : model.postProcess()["Fields"] )
     {
-      std::cout << "it = " << it << std::endl;
       if(it == "diffused") 
         e->step(i)->add("diffused",u);
       else if(it == "k11")
