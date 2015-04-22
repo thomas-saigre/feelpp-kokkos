@@ -1,7 +1,8 @@
 // -*- mode: javascript -*-
 {
-    "Name": "3D beam with 2 materials",
-    "ShortName":"beam3d",
+    "Name": "2D beam ",
+    "ShortName":"beam2d",
+    "Model":"hyperelastic",
     "Parameters":
     {
         "gravity":
@@ -11,9 +12,7 @@
     },
     "Materials":
     {
-        "Copper":{ "filename":"$feelpp_srcdir/databases/materials/pure/copper.json" },
-        "Iron":{ "filename":"$feelpp_srcdir/databases/materials/pure/iron.json" }
-        //"Iron":{ "filename":"$feelpp_srcdir/databases/materials/pure/copper.json" }
+        "Copper":{ "name":"Copper","filename":"$feelpp_srcdir/databases/materials/pure/copper.json" }
     },
     "BoundaryConditions":
     {
@@ -22,16 +21,16 @@
             
             "Dirichlet":
               {
-                  "clamped":
-                  {
-                      "expr":"{0,0,0}"
-                  }
+              "clamped":
+              {
+              "expr":"{0,0}"
+              }
               },
             "Neumann":
             {
                 "pressure":
                 {
-                    "expr":"{0,-1e9,0}" 
+                    "expr":"{0,-10}" 
                 }
             }
         }/*,
