@@ -88,7 +88,9 @@ int main(int argc, char**argv )
   //! [materials]
   for(auto it : materials)
   {
+    auto mat = material(it);
     if(boption("myVerbose") && Environment::isMasterRank() )
+<<<<<<< HEAD
       std::cout << "[Materials] - Laoding data for " << it.second.name() << " that apply on marker " << it.first  << " with diffusion coef [" 
 #if MODEL_DIM == 3
         << "[" << it.second.k11() << "," << it.second.k12() << "," << it.second.k13() << "],"
@@ -102,10 +104,16 @@ int main(int argc, char**argv )
     k11.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k11()));
     k12.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k12()));
     k22.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k22()));
+=======
+      std::cout << "[Materials] - Laoding data for " << mat.name() << " that apply on marker " << marker(it)  << " with diffusion coef " << mat.k11() << std::endl;
+    k11.on(_range=markedelements(mesh,marker(it)),_expr=cst(mat.k11()));
+    k12.on(_range=markedelements(mesh,marker(it)),_expr=cst(mat.k12()));
+    k22.on(_range=markedelements(mesh,marker(it)),_expr=cst(mat.k22()));
+>>>>>>> e917229c8e48203eaae8df8570abf41e2d6ef166
 #if MODEL_DIM == 3
-    k13 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k13());
-    k23 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k23());
-    k33 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k33());
+    k13 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k13());
+    k23 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k23());
+    k33 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k33());
 #endif
   }
 #if MODEL_DIM == 2
