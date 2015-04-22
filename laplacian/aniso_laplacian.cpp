@@ -48,7 +48,7 @@ int main(int argc, char**argv )
   ModelProperties model(Environment::expand(soption("myModel")));
   //! [load_model]
   //! [get_bc]
-  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("velocity","dirichlet") };
+  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("heat","dirichlet") };
   //! [get_bc]
   //! [get_mat]
   ModelMaterials materials = model.materials();
@@ -89,7 +89,16 @@ int main(int argc, char**argv )
   for(auto it : materials)
   {
     if(boption("myVerbose") && Environment::isMasterRank() )
-      std::cout << "[Materials] - Laoding data for " << it.second.name() << " that apply on marker " << it.first  << " with diffusion coef " << it.second.k11() << std::endl;
+      std::cout << "[Materials] - Laoding data for " << it.second.name() << " that apply on marker " << it.first  << " with diffusion coef [" 
+#if MODEL_DIM == 3
+        << "[" << it.second.k11() << "," << it.second.k12() << "," << it.second.k13() << "],"
+        << "[" << it.second.k12() << "," << it.second.k22() << "," << it.second.k23() << "],"
+        << "[" << it.second.k13() << "," << it.second.k23() << "," << it.second.k33() << "]]" 
+#else
+        << "[" << it.second.k11() << "," << it.second.k12() << "],"
+        << "[" << it.second.k12() << "," << it.second.k22() << "],"
+#endif
+        << std::endl;
     k11.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k11()));
     k12.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k12()));
     k22.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k22()));

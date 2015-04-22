@@ -1,7 +1,8 @@
 // -*- mode: javascript -*- vim:set ft=javascript:
 {
-  "Name": "Turek",
-  "Description":"Fluid flow around a cylinder",
+  "Name": "QuickStart - Model - Tutorial",
+  "Model": "Dummy",
+  "Description":"Anisotropic diffusion - Model framework",
   "Parameters":
   {
     "Um":
@@ -19,9 +20,9 @@
   },
   "Materials":
   {
-    "fluid":
+    "fluid": //Marker on the mesh
     {
-      "name": "Watter",
+      "name": "Watter", // Name of the material - no reason to be the same as the marker
       "rho": "0",
       "mu": "0",
       "Cp": "0", 
@@ -46,15 +47,19 @@
   },
   "BoundaryConditions":
   {
-    "velocity":
+    "heat":
     {
       "dirichlet":
       {
-        "inlet":
+        "left":
         {
           "expr":"2"
         },
-        "wall":
+        "wall_in":
+        {
+          "expr":"3"
+        },
+        "wall_out":
         {
           "expr":"3"
         },
@@ -62,7 +67,7 @@
         {
           "expr":"cos(x)*sin(y):x:y"
         },
-        "outlet":
+        "right":
         {
           "expr":"x:x"
         }
