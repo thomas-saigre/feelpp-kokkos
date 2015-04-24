@@ -48,7 +48,7 @@ int main(int argc, char**argv )
   ModelProperties model(Environment::expand(soption("myModel")));
   //! [load_model]
   //! [get_bc]
-  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("velocity","dirichlet") };
+  map_scalar_field<2> bc_u { model.boundaryConditions().getScalarFields<2>("heat","dirichlet") };
   //! [get_bc]
   //! [get_mat]
   ModelMaterials materials = model.materials();
@@ -88,15 +88,25 @@ int main(int argc, char**argv )
   //! [materials]
   for(auto it : materials)
   {
+    auto mat = material(it);
     if(boption("myVerbose") && Environment::isMasterRank() )
-      std::cout << "[Materials] - Laoding data for " << it.second.name() << " that apply on marker " << it.first  << " with diffusion coef " << it.second.k11() << std::endl;
+      std::cout << "[Materials] - Laoding data for " << it.second.name() << " that apply on marker " << it.first  << " with diffusion coef [" 
+#if MODEL_DIM == 3
+        << "[" << it.second.k11() << "," << it.second.k12() << "," << it.second.k13() << "],"
+        << "[" << it.second.k12() << "," << it.second.k22() << "," << it.second.k23() << "],"
+        << "[" << it.second.k13() << "," << it.second.k23() << "," << it.second.k33() << "]]" 
+#else
+        << "[" << it.second.k11() << "," << it.second.k12() << "],"
+        << "[" << it.second.k12() << "," << it.second.k22() << "]]"
+#endif
+        << std::endl;
     k11.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k11()));
     k12.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k12()));
     k22.on(_range=markedelements(mesh,it.first),_expr=cst(it.second.k22()));
 #if MODEL_DIM == 3
-    k13 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k13());
-    k23 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k23());
-    k33 += vf::project(_space=Vh,_range=markedelements(mesh,it.first),_expr=it.second.k33());
+    k13 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k13());
+    k23 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k23());
+    k33 += vf::project(_space=Vh,_range=markedelements(mesh,marker(it)),_expr=mat.k33());
 #endif
   }
 #if MODEL_DIM == 2
@@ -120,26 +130,28 @@ int main(int argc, char**argv )
 
   //! [export]
   auto e = exporter( _mesh=mesh );
-  for(auto const &it : model.postProcess()["Fields"] )
-  {
+  for(int i = 0; i < 3; i ++){
+    for(auto const &it : model.postProcess()["Fields"] )
+    {
       if(it == "diffused") 
-        e->add("diffused",u);
+        e->step(i)->add("diffused",u);
       else if(it == "k11")
-        e->add("k11",k11);
+        e->step(i)->add("k11",k11);
       else if(it == "k12")
-        e->add("k12",k12);
+        e->step(i)->add("k12",k12);
       else if(it == "k11")
-        e->add("k22",k22);
+        e->step(i)->add("k22",k22);
 #if MODEL_DIM == 3
       else if(it == "k13")
-        e->add("k13",k13);
+        e->step(i)->add("k13",k13);
       else if(it == "k11")
-        e->add("k23",k23);
+        e->step(i)->add("k23",k23);
       else if(it == "k33")
-        e->add("k33",k33);
+        e->step(i)->add("k33",k33);
 #endif
     }
-  e->save();
+    e->save();
+  }
   //! [export]
   return 0;
 }
