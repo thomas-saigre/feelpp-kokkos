@@ -12,7 +12,7 @@
     },
     "Materials":
     {
-        "Copper":{ "name":"Copper","filename":"$feelpp_srcdir/databases/materials/pure/copper.json" }
+        "beam":{ "name":"Copper","filename":"$feelpp_srcdir/databases/materials/pure/copper.json" }
     },
     "BoundaryConditions":
     {
