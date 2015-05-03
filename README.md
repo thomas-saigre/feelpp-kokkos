@@ -11,12 +11,12 @@ As a prerequisite, you have to install
 [Feel++](http://www.feelpp.org/docs/develop/BuildingP.html) on your system.
 
 then do the following
-\code
+~~~~~{.sh}
 git clone https://github.com/feelpp/quickstart
 mkdir build
 cd build
 cmake ../quickstart
-\endcode
+~~~~~
 
 
 # Tools {#tools}
@@ -34,6 +34,7 @@ Quickstart is built
 
 # Modules {#modules}
 
- - [Laplacian](@ref QSLaplacian)
- - [Fluid Mechanics](@ref QSFluidMechanics)
+ - \subpage QSLaplacian
+ - \subpage QSFluidMechanics
+ - \subpage QSSolidMechanics
 

@@ -1,5 +1,5 @@
-Quickstart Fluid Mechanics {#QSFluidMechanics}
-==============================================
+Fluid Mechanics {#QSFluidMechanics}
+===============
 
 # Modules
 
