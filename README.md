@@ -34,6 +34,6 @@ Quickstart is built
 
 # Modules {#modules}
 
- - \subpage QSLaplacian
- - \subpage QSFluidMechanics
+ - [Laplacian](@ref QSLaplacian)
+ - [Fluid Mechanics](@ref QSFluidMechanics)
 
