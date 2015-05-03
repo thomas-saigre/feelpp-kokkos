@@ -42,6 +42,7 @@ int main(int argc, char**argv )
 
     //# marker2 #
     auto mesh = loadMesh(_mesh=new Mesh<Simplex<2>>);
+
     auto Vh = Pch<2>( mesh );
     auto u = Vh->element("u");
     auto mu = doption(_name="mu");
