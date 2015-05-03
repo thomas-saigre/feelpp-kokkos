@@ -19,7 +19,7 @@ cmake ../quickstart
 \endcode
 
 
-# Tools
+# Tools {#tools}
 
 ## Chat with Gitter
 
@@ -32,7 +32,7 @@ Quickstart is built
  - as an external package [![Build Status](https://travis-ci.org/feelpp/quickstart.svg)](https://travis-ci.org/feelpp/quickstart)
  
 
-# Modules
+# Modules {#modules}
 
  - \subpage QSLaplacian
  - \subpage QSFluidMechanics
