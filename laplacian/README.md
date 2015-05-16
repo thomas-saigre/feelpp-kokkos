@@ -1,17 +1,17 @@
-/* -*- mode: c++; coding: utf-8 -*- */
-namespace Feel {
-/**
-\page QSLaplacian Quickstart Laplacian
+Laplacian {#QSLaplacian}
+=========
 
-\tableofcontents
+[TOC]
 
-\c Note: The source code of this example is available in \c quickstart/qs_laplacian.cpp
+\note The source code of this example is available [here](qs_laplacian.cpp).
 
-As an introduction to the aim and the way to do with \feel, we provide a sort of
-<tt>Hello World</tt> program to evaluate the library. We solve for the laplacian
+# Introduction {#QSLaplacianintro}
+
+As an introduction to the aim and the way to do with Feel++, we provide a sort of
+`Hello World` program to evaluate the library. We solve for the laplacian
 with Dirichlet boundary conditions.
 
-\section Math Problem setup
+# Problem setup {#QSLaplaciansetup}
 
 We want to solve the following problem:<br>
 \f[ - \Delta u = 1,\quad u_{|\partial \Omega} = g \f]
@@ -40,11 +40,12 @@ We now look for \f$u_h \in V_h\f$ such that:
     \end{aligned}
 \f$</center><br>
 
-\section Code About the code
+# Code description {#QSLaplaciancode}
+
 This section is here to declare that we want to use the namespace \feel, to
 passe the command line options to the created environnement and add some
 informations (basics \feel options, application name).
-\co
+~~~~~~{.cpp}
 using namespace Feel;
 Environment env( _argc=argc, _argv=argv,
                  _desc=feel_options(),
@@ -52,18 +53,18 @@ Environment env( _argc=argc, _argv=argv,
                  _about=about(_name="qs_laplacian",
                  _author="Feel++ Consortium",
                  _email="feelpp-devel@feelpp.org"));
-\eco
+~~~~~~
 We have to define the mesh, the approximation space and our test and trial
 functions.
-\co
+~~~~~~{.cpp}
 auto mesh = unitSquare();
 auto Vh = Pch<1>( mesh );
 auto u = Vh->element();
 auto v = Vh->element();
-\eco
+~~~~~~
 We create now our bilinear and linear forms, we add the homogeneous Dirichlet
 conditions and solve the discretized (linear) system.
-\co
+~~~~~~{.cpp}
 auto l = form1( _test=Vh );
 l = integrate(_range=elements(mesh),
               _expr=id(v));
@@ -75,56 +76,52 @@ a = integrate(_range=elements(mesh),
 a+=on(_range=boundaryfaces(mesh), _rhs=l, _element=u,
       _expr=constant(0.) );
 a.solve(_rhs=l,_solution=u);
-\eco
+~~~~~~
 \feel provides the possibility to save the results:
-\co
+~~~~~~{.cpp}
 auto e = exporter( _mesh=mesh );
 e->add( "u", u );
 e->save();
 return 0;
-\eco
+~~~~~~
 
-Complete code:
+# Complete code {#QSLaplacianCompleteCode}
+
 \snippet qs_laplacian.cpp global
 
-<a href="#" class="top">top</a>
-<hr>
-\section First First execution & visualization
+# First execution & visualization {#QSLaplacianExec}
 
 To test that part of code, please go to:
-\verbatim
-  cd $FeelppBuildDir/quickstart
-\endverbatim
+~~~~~~
+cd $FeelppBuildDir/quickstart
+~~~~~~
+
 and execute the code, by:
-\verbatim
-  ./feelpp_qs_laplacian
-\endverbatim
-This will produce several files in directory <tt>$HOME/feel/qs_laplacian/np_1/</tt>:
-\verbatim
+~~~~~~
+./feelpp_qs_laplacian
+~~~~~~
+
+This will produce several files in directory `$HOME/feel/qs_laplacian/np_1/`:
+~~~~~~
   feel.geo
   feel.msh
-  qs_laplacian-1_0.case
-  qs_laplacian-1_0.geo
-  qs_laplacian-1.sos
-  qs_laplacian-paraview-1.sos
-  qs_laplacian.timeset
+  qs_laplacian.case
   qs_laplacian.u-1_0.001
-\endverbatim
+~~~~~~  
+
 You can visualize the results using any Ensight file reader, such as Paraview,
 opening <tt>qs_laplacian-paraview-1.sos</tt>.
-\verbatim
+~~~~~~
   paraview qs_laplacian-paraview-1.sos
-\endverbatim
+~~~~~~  
+
 You may have a look to the options provided by the application
-\verbatim
+~~~~~~  
   ./feelpp_qs_laplacian --help
-\endverbatim
+~~~~~~  
+
 
 as well as the options provided by the Feel++ library
-
-\verbatim
+~~~~~~  
   ./feelpp_qs_laplacian --help-lib
-\endverbatim
-
-*/
-}
+~~~~~~  
