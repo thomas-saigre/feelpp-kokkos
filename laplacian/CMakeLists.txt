@@ -23,13 +23,15 @@
 #
 
 
-feelpp_add_application( qs_laplacian SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg)
-install(TARGETS feelpp_qs_laplacian DESTINATION bin/ COMPONENT Bin )
+feelpp_add_application( qs_laplacian_2d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg DEFS FEELPP_DIM=2 )
+feelpp_add_application( qs_laplacian_3d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg DEFS FEELPP_DIM=3 )
+install(TARGETS feelpp_qs_laplacian_2d DESTINATION bin/ COMPONENT Bin )
+install(TARGETS feelpp_qs_laplacian_3d DESTINATION bin/ COMPONENT Bin  )
 
 feelpp_add_application( ls_laplacian SRCS ls_laplacian.cpp INCLUDE_IN_ALL CFG ls_laplacian.cfg TIMEOUT 60)
 install(TARGETS feelpp_ls_laplacian DESTINATION bin/ COMPONENT Bin )
 
-add_dependencies(quickstart feelpp_qs_laplacian)
+add_dependencies(quickstart feelpp_qs_laplacian_2d)
 
 feelpp_add_application( aniso_laplacian SRCS aniso_laplacian.cpp DEFS MODEL_DIM=2)
 

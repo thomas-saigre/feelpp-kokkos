@@ -41,7 +41,7 @@ int main(int argc, char**argv )
     //# endmarker1 #
 
     //# marker2 #
-    auto mesh = loadMesh(_mesh=new Mesh<Simplex<2>>);
+    auto mesh = loadMesh(_mesh=new Mesh<Simplex<FEELPP_DIM>>);
     auto Vh = Pch<2>( mesh );
     auto u = Vh->element("u");
     auto mu = doption(_name="mu");
