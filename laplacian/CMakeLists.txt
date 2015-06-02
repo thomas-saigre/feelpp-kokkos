@@ -23,8 +23,8 @@
 #
 
 
-feelpp_add_application( qs_laplacian_2d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg DEFS FEELPP_DIM=2 )
-feelpp_add_application( qs_laplacian_3d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian.cfg DEFS FEELPP_DIM=3 )
+feelpp_add_application( qs_laplacian_2d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian_2d.cfg DEFS FEELPP_DIM=2 )
+feelpp_add_application( qs_laplacian_3d SRCS qs_laplacian.cpp INCLUDE_IN_ALL CFG qs_laplacian_3d.cfg DEFS FEELPP_DIM=3 )
 install(TARGETS feelpp_qs_laplacian_2d DESTINATION bin/ COMPONENT Bin )
 install(TARGETS feelpp_qs_laplacian_3d DESTINATION bin/ COMPONENT Bin  )
 
