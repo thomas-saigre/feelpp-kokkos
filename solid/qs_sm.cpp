@@ -31,7 +31,7 @@ main( int argc, char** argv )
 
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
-                     _desc=solidmechanics_options("sm"),
+                     _desc=solidMechanics_options("sm"),
                      _about=about(_name="qs_sm",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));

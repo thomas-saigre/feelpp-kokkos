@@ -30,7 +30,7 @@ int main(int argc, char**argv )
     //! [marker1]
     using namespace Feel;
 	Environment env( _argc=argc, _argv=argv,
-                     _desc=fluidmechanics_options("fm"),
+                     _desc=fluidMechanics_options("fm"),
                      _about=about(_name="qs_stokes",
                                   _author="Feel++ Consortium",
                                   _email="feelpp-devel@feelpp.org"));
