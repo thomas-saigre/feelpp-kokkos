@@ -23,7 +23,7 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <feel/feelmodels/solid/solidmechanics.hpp>
-#include <feel/feel.hpp>
+#include <feel/feelfilters/loadmesh.hpp>
 
 int
 main( int argc, char** argv )
@@ -34,31 +34,39 @@ main( int argc, char** argv )
                      _desc=solidMechanics_options("sm"),
                      _about=about(_name="qs_sm",
                                   _author="Feel++ Consortium",
-                                  _email="feelpp-devel@feelpp.org"));
-    
+                                  _email="feelpp-devel@feelpp.org"),
+                     _directory="." );
+
     const int dim = FEELPP_DIM;
     const int order = FEELPP_ORDER;
-    auto  mesh = loadMesh( _mesh = new Mesh<Simplex<dim>> );
-    auto Vh = Pchv<order>( mesh );
-    Vh->printInfo();
+    typedef Simplex<dim,1> convex_type;
+    typedef Lagrange<order, Vectorial,Continuous,PointSetFekete> basis_disp_type;
+    typedef FeelModels::SolidMechanics< convex_type,basis_disp_type> model_type;
+    auto sm = model_type::New("sm");
+    sm->init();
+    sm->printAndSaveInfo();
 
-    SolidMechanics<decltype(Vh)> sm( "sm", Vh );
-    sm.init();
-    // get a reference to displacement computed by sm
-    // it gets updated at each solve()
-    auto const& u = sm.displacement();
-
-    auto ts = sm.ts();
-    for ( ; !ts->isFinished(); ts->next(u) )
+    if ( sm->isStationary() )
     {
-        if ( Environment::isMasterRank() )
-        {
-            std::cout << "============================================================\n";
-            std::cout << "time : " << ts->time() << "s\n";
-        }
-        sm.solve();
-        sm.exportResults();
+            if ( Environment::isMasterRank() )
+            {
+                std::cout << "============================================================\n";
+                std::cout << "stationary solve\n";
+            }
+            sm->solve();
+            sm->exportResults();
     }
-    
-
+    else
+    {
+        for ( ; !sm->timeStepBase()->isFinished(); sm->updateTimeStep() )
+        {
+            if ( Environment::isMasterRank() )
+            {
+                std::cout << "============================================================\n";
+                std::cout << "time : " << sm->time() << "s\n";
+            }
+            sm->solve();
+            sm->exportResults();
+        }
+    }
 }
