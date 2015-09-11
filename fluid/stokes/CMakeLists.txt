@@ -23,8 +23,8 @@
 #
 
 
-feelpp_add_application( qs_stokes_2d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
-feelpp_add_application( qs_stokes_3d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=3 FEELPP_ORDER=2 )
+feelpp_add_application( qs_stokes_2d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=2 FEELPP_ORDER=2 LINK_LIBRARIES feelpp_model_fluidmec2dP2P1G1 )
+feelpp_add_application( qs_stokes_3d SRCS qs_stokes.cpp INCLUDE_IN_ALL DEFS FEELPP_DIM=3 FEELPP_ORDER=2 LINK_LIBRARIES feelpp_model_fluidmec3dP2P1G1 )
 install(TARGETS feelpp_qs_stokes_2d DESTINATION bin/ COMPONENT Bin )
 install(TARGETS feelpp_qs_stokes_3d DESTINATION bin/ COMPONENT Bin )
 

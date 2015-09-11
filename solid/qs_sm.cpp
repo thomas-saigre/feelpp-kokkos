@@ -23,7 +23,6 @@
   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include <feel/feelmodels/solid/solidmechanics.hpp>
-#include <feel/feelfilters/loadmesh.hpp>
 
 int
 main( int argc, char** argv )

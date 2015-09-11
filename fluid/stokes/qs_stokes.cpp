@@ -22,7 +22,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //! [main]
-#include <feel/feel.hpp>
 #include <feel/feelmodels/fluid/fluidmechanics.hpp>
 
 int main(int argc, char**argv )
@@ -33,29 +32,42 @@ int main(int argc, char**argv )
                      _desc=fluidMechanics_options("fm"),
                      _about=about(_name="qs_stokes",
                                   _author="Feel++ Consortium",
-                                  _email="feelpp-devel@feelpp.org"));
+                                  _email="feelpp-devel@feelpp.org"),
+                     _directory="." );
+
     const int dim = FEELPP_DIM;
-    const int pressure_order = FEELPP_ORDER;
-    tic();
-    auto mesh = loadMesh( _mesh=new Mesh<Simplex<dim>> );
-    toc("FM/Mesh built");
-    tic();
-    // Taylar-Hood P_{N+1}/P_N, N=pressure_order
-    auto Vh = THch<pressure_order>( mesh );
-    toc("FM/Space built");
+    const int velocity_order = FEELPP_ORDER;
+    const int pressure_order = FEELPP_ORDER-1;
 
-    tic();
-    FluidMechanics<decltype(Vh)> fm( "fm", Vh );
-    toc("FM/Stokes built");
+    typedef FeelModels::FluidMechanics< Simplex<FEELPP_DIM,1>,
+                                        Lagrange<velocity_order, Vectorial,Continuous,PointSetFekete>,
+                                        Lagrange<pressure_order, Scalar,Continuous,PointSetFekete> > model_type;
+    auto fm = model_type::New("fm");
 
-    tic();
-    fm.solve();
-    toc("[FM/Stokes] solve");
+    fm->init();
+    fm->printAndSaveInfo();
 
-    tic();
-    fm.exportResults();
-    toc("[FM/Stokes] export");
-    
+    if ( fm->isStationary() )
+    {
+        fm->solve();
+        fm->exportResults();
+    }
+    else
+    {
+        for ( ; !fm->timeStepBase()->isFinished(); fm->updateTimeStep() )
+        {
+            if (fm->worldComm().isMasterRank())
+            {
+                std::cout << "============================================================\n";
+                std::cout << "time simulation: " << fm->time() << "s \n";
+                std::cout << "============================================================\n";
+            }
+
+            fm->solve();
+            fm->exportResults();
+        }
+    }
+
     return 0;
 }
 //! [main]
