@@ -6,7 +6,7 @@
     {
         "gravity":
         {
-            "value":"-1"
+            "value":"9.81"
         }
     },
     "Materials":
@@ -27,12 +27,17 @@
                       "expr":"{0,0,0}"
                   }
               },
-            "Neumann":
+            "Neumann_vectorial":
             {
                 "pressure":
                 {
                     "expr":"{0,-1e9,0}" 
                 }
+            },
+            "VolumicForces":
+            {
+                "Copper": { "expr":"{0,-gravity*8930}:gravity" },
+                "Iron": { "expr":"{0,-gravity*7870}:gravity" }
             }
         }/*,
         
@@ -75,7 +80,7 @@
     },
     "PostProcess":
     {
-        "Fields":["displacement","stress"]
+        "Fields":["displacement","stress","material-properties"]
     }
 
 }

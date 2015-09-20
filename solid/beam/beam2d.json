@@ -7,7 +7,7 @@
     {
         "gravity":
         {
-            "value":"-1"
+            "value":"9.81"
         }
     },
     "Materials":
@@ -20,17 +20,24 @@
         {
             
             "Dirichlet":
-              {
-              "clamped":
-              {
-              "expr":"{0,0}"
-              }
-              },
-            "Neumann":
+            {
+                "clamped":
+                {
+                    "expr":"{0,0}"
+                }
+            },
+            "Neumann_vectorial":
             {
                 "pressure":
                 {
-                    "expr":"{0,-10}" 
+                    "expr":"{0,-1e6}" 
+                }
+            },
+            "VolumicForces":
+            {
+                "":
+                {
+                    "expr":"{0,-gravity*8930}:gravity"
                 }
             }
         }/*,

@@ -12,7 +12,7 @@
         {
             "name": "fluid",
             "rho": "1", // density
-            "mu": "0.001" // kinematic_viscosity
+            "mu": "0.001" // dynamic_viscosity
         }
     },
     "BoundaryConditions":
@@ -20,11 +20,10 @@
         "velocity":{
             "Dirichlet": {
                 "inflow": { "expr":"{4*Um*y*( H-y )/H^2,0}:y:Um:H" },
-                "wall": { "expr":"{0,0}" },
-                "cylinder": { "expr":"{0,0}" }
+                "wall": { "expr":"{0,0}" }
             },
-            "Neumann": {
-                "outlet": { "expr":"{0,0,0,0}" }
+            "Neumann_tensor2": {
+                "outflow": { "expr": "{0,0,0,0}" }
             }
         }
     }, // BoundaryConditions
