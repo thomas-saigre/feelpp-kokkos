@@ -23,12 +23,14 @@
 #
 
 feelpp_add_application( qs_ns_2d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG qs_ns.cfg  DEFS FEELPP_DIM=2 FEELPP_ORDER=2 )
-install(TARGETS feelpp_qs_ns_2d DESTINATION bin/ COMPONENT Bin )
 feelpp_add_application( qs_ns_3d SRCS qs_ns.cpp INCLUDE_IN_ALL CFG qs_ns.cfg DEFS FEELPP_DIM=3 FEELPP_ORDER=2 NO_TEST )
-install(TARGETS feelpp_qs_ns_3d DESTINATION bin/ COMPONENT Bin )
+
+install(TARGETS feelpp_qs_ns_2d feelpp_qs_ns_3d 
+        RUNTIME DESTINATION bin/ 
+        COMPONENT Quickstart )
 
 feelpp_add_testcase(step)
 feelpp_add_testcase(feelpp)
 feelpp_add_testcase(turek)
 
-add_dependencies(quickstart feelpp_qs_ns_2d)
+add_dependencies(quickstart feelpp_qs_ns_2d feelpp_qs_ns_3d)

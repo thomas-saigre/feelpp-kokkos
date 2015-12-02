@@ -25,3 +25,7 @@
 
 feelpp_add_application(qs_le_2d SRCS qs_le.cpp CFG qs_le.cfg beam cantilever DEFS FEELPP_DIM=2 FEELPP_ORDER=2)
 feelpp_add_application(qs_le_3d SRCS qs_le.cpp CFG qs_le.cfg beam tripod DEFS FEELPP_DIM=3 FEELPP_ORDER=2)
+
+install(TARGETS feelpp_qs_le_2d feelpp_qs_le_3d 
+        RUNTIME DESTINATION bin 
+        COMPONENT Quickstart)
