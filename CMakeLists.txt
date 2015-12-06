@@ -21,19 +21,20 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 #
+cmake_minimum_required(VERSION 2.8)
+
 project(quickstart)
 
 if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} )
-  cmake_minimum_required(VERSION 2.8)
-
-  FIND_PATH(FEELPP_CMAKE_MODULES FindFeel++.cmake PATH $ENV{FEELPP_DIR}/share/feel/cmake/modules /usr/share/feel/cmake/modules/ /usr/local/share/feel/cmake/modules/ )
-  
-  if ( FEELPP_CMAKE_MODULES )
-    set(CMAKE_MODULE_PATH ${FEELPP_CMAKE_MODULES})
-  else()
-    message(FATAL_ERROR "Feel++ does not seem to have been installed on this platform")
-  endif()
-  Find_Package(Feel++)
+    find_package(Feel++ 
+        PATHS $ENV{FEELPP_DIR}/share/feel/cmake 
+        /usr/share/feel/cmake 
+        /usr/local/share/feel/cmake 
+        /opt/share/feel/cmake
+        )
+    if(NOT FEELPP_FOUND)
+        message(FATAL_ERROR "Feel++ was not found on your system. Make sure to install it and specify the FEELPP_DIR to reference the installation directory.")
+    endif()
 endif()
 
 enable_testing()
@@ -47,8 +48,6 @@ add_custom_target(quickstart)
 add_custom_target(quickstart-check COMMAND "ctest" ARGS "-VV" "-R" "qs")
 add_dependencies(quickstart-check quickstart)
 add_dependencies(check quickstart-check)
-
-
 
 add_subdirectory(laplacian)
 add_subdirectory(fluid)
