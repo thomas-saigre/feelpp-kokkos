@@ -30,5 +30,6 @@ install(TARGETS feelpp_qs_ns_3d DESTINATION bin/ COMPONENT Bin )
 feelpp_add_testcase(step)
 feelpp_add_testcase(feelpp)
 feelpp_add_testcase(turek)
+feelpp_add_testcase(cavity)
 
 add_dependencies(quickstart feelpp_qs_ns_2d)
