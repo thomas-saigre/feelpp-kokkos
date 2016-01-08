@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 2.8)
 project(quickstart)
 
 if ( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR} )
-  FIND_PATH(FEELPP_CMAKE_MODULES FindFeel++.cmake PATH $ENV{FEELPP_DIR}/share/feel/cmake/modules/   /usr/share/feel/cmake/modules/ /usr/local/share/feel/cmake/modules/ )
+  FIND_PATH(FEELPP_CMAKE_MODULES FindFeel++.cmake PATH $ENV{FEELPP_DIR}/share/feel/cmake   /usr/share/feel/cmake /usr/local/share/feel/cmake )
   if ( FEELPP_CMAKE_MODULES )
     set(CMAKE_MODULE_PATH ${FEELPP_CMAKE_MODULES})
     Find_Package(Feel++)
