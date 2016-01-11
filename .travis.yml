@@ -21,6 +21,7 @@ addons:
         - doxygen
         - libeigen3-dev
         - imagemagick
+        - g++-4.9
       sources:
         - ubuntu-toolchain-r-test
         - llvm-toolchain-precise-3.5
