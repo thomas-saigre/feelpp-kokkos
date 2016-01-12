@@ -5,6 +5,9 @@ git:
 language: cpp
 compiler:
 - clang
+env: 
+  global:
+    FEELPP_STD_CPP=14
 
 addons:
     apt:
@@ -69,7 +72,10 @@ before_install:
   - export FEELPP_DIR=$HOME/software/install/feelpp; echo $FEELPP_DIR
   
 install:
-- mkdir opt-$BUILD && cd opt-$BUILD && ../configure -r --cxxflags="-O2 -DNDEBUG"
+- $CXX --version
+- $CC --version
+- mkdir opt-$BUILD && cd opt-$BUILD && ../configure --build=$BUILDTYPE -v --cxxflags="$CXXFLAGS"
+  --std=c++$FEELPP_STD_CPP --prefix=$HOME/software/install/feelpp --max-order=1
 
 script:
 - make VERBOSE=1
