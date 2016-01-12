@@ -19,6 +19,7 @@ addons:
         - libopenmpi-dev
         - libglpk-dev
         - libxml2-dev
+        - libfftw3-dev
         - bison
         - flex
         - doxygen
