@@ -75,7 +75,7 @@ install:
 - $CXX --version
 - $CC --version
 - mkdir opt-$BUILD && cd opt-$BUILD && ../configure --build=$BUILDTYPE -v --cxxflags="$CXXFLAGS"
-  --std=c++$FEELPP_STD_CPP --prefix=$HOME/software/install/feelpp --max-order=1
+  --std=c++$FEELPP_STD_CPP --prefix=$HOME/software/install/feelpp
 
 script:
 - make VERBOSE=1
