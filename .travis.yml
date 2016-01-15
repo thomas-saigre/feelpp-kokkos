@@ -44,6 +44,15 @@ matrix:
           packages:
             - *std_packages
             - clang-3.6
+    - env: BUILD="llvm-3.7" COMPILER_VERSION="clang-3.7" FEELPP_STD_CPP=11 FEELPP_CXX=clang++-3.7 FEELPP_CC=clang-3.7 BUILDTYPE=Release TARGET=quickstart
+      addons: &clang37
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+          packages:
+            - *std_packages
+            - clang-3.7
             
 before_install:
   - echo $TRAVIS_OS_NAME
