@@ -29,9 +29,9 @@ install(TARGETS feelpp_qs_ns_2d feelpp_qs_ns_3d
         RUNTIME DESTINATION bin/ 
         COMPONENT Quickstart )
 
-feelpp_add_testcase(step)
-feelpp_add_testcase(feelpp)
-feelpp_add_testcase(turek)
-feelpp_add_testcase(cavity)
+feelpp_add_testcase(step PREFIX qs )
+feelpp_add_testcase(feelpp PREFIX qs )
+feelpp_add_testcase(turek PREFIX qs )
+feelpp_add_testcase(cavity PREFIX qs )
 
 add_dependencies(quickstart feelpp_qs_ns_2d feelpp_qs_ns_3d)
