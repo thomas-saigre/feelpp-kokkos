@@ -82,7 +82,8 @@ int main(int argc, char**argv )
     a +=integrate( _range=elements( mesh ), _expr=-div( v )*idt( p ) - divt( u )*id( q ) );
     auto e = exporter( _mesh=mesh, _geo="static" );
     auto w = Vh->functionSpace<0>()->element( curlv(u), "w" );
-
+    auto f_mean = form1_mean( _test=Vh->functionSpace<1>(),
+                              _range=elements(mesh), _expr=id(p) );
     /*
      * retrieve vector fields from boundary condition factory
      */
@@ -150,8 +151,7 @@ int main(int argc, char**argv )
         e->step(mybdf->time())->add( "u", u );
         e->step(mybdf->time())->add( "w", w );
         e->step(mybdf->time())->add( "p", p );
-        auto mean_p = mean( _range=elements(mesh), _expr=idv(p) )( 0, 0 );
-        e->step(mybdf->time())->addScalar( "mean_p", mean_p );
+        e->step(mybdf->time())->addScalar( "mean_p", f_mean(p) );
         e->save();
         toc("export");
         toc("time step");
