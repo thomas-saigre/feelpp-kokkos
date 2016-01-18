@@ -100,10 +100,10 @@ int main(int argc, char**argv )
     auto a_blockns = blockns( _space=Vh, _type=soption("ns.preconditioner"),
                               _bc=BoundaryConditionFactory::instance(),
                               _matrix= at.matrixPtr(),
-                              _alpha=rho*mybdf->polyDerivCoefficient(0),
-                              //_alpha=0,
-                              _mu=mu,
-                              _rho=rho,
+                              _properties_space = Pdh<0>( mesh ),
+                              _alpha=cst(rho*mybdf->polyDerivCoefficient(0)),
+                              _mu=cst(mu),
+                              _rho=cst(rho),
                               _prefix="velocity" );
 
     toc("bdf, forms,...");
