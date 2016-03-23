@@ -47,6 +47,9 @@ int main(int argc, char**argv )
     auto u = Vh->element("u");
     auto mu = doption(_name="mu");
     auto f = expr( soption(_name="functions.f"), "f" );
+    auto r_1 = expr( soption(_name="functions.a"), "a" ); // Robin left hand side expression
+    auto r_2 = expr( soption(_name="functions.b"), "b" ); // Robin right hand side expression
+    auto n = expr( soption(_name="functions.c"), "c" ); // Neumann expression
     auto g = expr( soption(_name="functions.g"), "g" );
     auto v = Vh->element( g, "g" );
     //# endmarker2 #
@@ -55,11 +58,14 @@ int main(int argc, char**argv )
     auto l = form1( _test=Vh );
     l = integrate(_range=elements(mesh),
                   _expr=f*id(v));
-
+    l+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_2*id(v));
+    l+=integrate(_range=markedfaces(mesh,"Neumann"), _expr=n*id(v));
+    
     auto a = form2( _trial=Vh, _test=Vh);
     a = integrate(_range=elements(mesh),
                   _expr=mu*gradt(u)*trans(grad(v)) );
-    a+=on(_range=boundaryfaces(mesh), _rhs=l, _element=u, _expr=g );
+    a+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_1*idt(u)*id(v));
+    a+=on(_range=markedfaces(mesh,"Dirichlet"), _rhs=l, _element=u, _expr=g );
     a.solve(_rhs=l,_solution=u);
     //# endmarker3 #
 
