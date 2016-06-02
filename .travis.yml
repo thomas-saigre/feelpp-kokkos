@@ -1,107 +1,26 @@
-# container based worker
-sudo: false
 git:
+  depth: 1
   submodules: false
-language: cpp
-compiler:
-- clang
-env: 
-  global:
-    FEELPP_STD_CPP=14
 
-addons:
-    apt:
-      packages: &std_packages
-        - expect
-        - gfortran
-        - cmake
-        - libtbb-dev
-        - libopenmpi-dev
-        - libglpk-dev
-        - libxml2-dev
-        - libfftw3-dev
-        - bison
-        - flex
-        - doxygen
-        - libeigen3-dev
-        - imagemagick
-        - g++-4.9
-      sources:
-        - ubuntu-toolchain-r-test
-        - llvm-toolchain-precise-3.5
-      packages:
-        - *std_packages
-        - clang-3.5
-            
 matrix:
   include:
-    - env: BUILD="llvm-3.6" COMPILER_VERSION="clang-3.6" FEELPP_STD_CPP=11 FEELPP_CXX=clang++-3.6 FEELPP_CC=clang-3.6 BUILDTYPE=Release TARGET=quickstart
-      addons: &clang36
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - *std_packages
-            - clang-3.6
-    - env: BUILD="llvm-3.7" COMPILER_VERSION="clang-3.7" FEELPP_STD_CPP=11 FEELPP_CXX=clang++-3.7 FEELPP_CC=clang-3.7 BUILDTYPE=Release TARGET=quickstart
-      addons: &clang37
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - *std_packages
-            - clang-3.7
+      - env: DOCKERFILE="Dockerfile" TARGET_IMAGE="feelpp/quickstart:latest"
+        sudo: required
+        services:
+            - docker
             
 before_install:
   - echo $TRAVIS_OS_NAME
   - echo $HOME
-  - if test "x$TRAVIS_OS_NAME" = "xlinux"; then apt-cache search clang; fi
-  - if test "x$TRAVIS_OS_NAME" = "xlinux"; then
-        if test "x$FEELPP_CC" != "x"; then
-           export CC=$FEELPP_CC;
-           export CXX=$FEELPP_CXX;
-        else
-           export CC=clang-3.5;
-           export CXX=clang++-3.5;
-           export FEELPP_STD_CPP=11;
-        fi;
-    fi
-  - if test "x$TRAVIS_OS_NAME" = "xosx"; then brew update; fi
-  - if test "x$TRAVIS_OS_NAME" = "xosx"; then brew outdated xctool || brew upgrade xctool; fi
-  - if test "x$TRAVIS_OS_NAME" = "xosx"; then brew install open-mpi; fi
-  - export NPROCS=3
-  # download tarball
-  - pwd
-  - (mkdir -p $HOME/software/install && cd $HOME/software/install && wget https://feelpp.s3.eu-central-1.amazonaws.com/travis-builds/feelpp-linux-develop-latest.tar.bz2 && tar xjf feelpp-linux-develop-latest.tar.bz2 && ls -R )
-  - export BOOSTROOT=$HOME/software/install/boost; echo $BOOSTROOT
-  - export GMSH_DIR=$HOME/software/install/gmsh; echo $GMSH_DIR
-  - export PETSC_DIR=$HOME/software/install/petsc; echo $PETSC_DIR
-  - export CLN_DIR=$HOME/software/install/cln; echo $CLN_DIR
-  - export FEELPP_DIR=$HOME/software/install/feelpp; echo $FEELPP_DIR
+  - docker --version
+  - sudo apt-get update
+  - sudo apt-get install -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" docker-engine
+  - git clone --depth=1 https://github.com/feelpp/docker
+  - cd docker/dockerfiles/project && docker build -f ${DOCKERFILE} -t ${TARGET_IMAGE} --build-arg=PROJECT_NAME=quickstart --build-arg=GIT_URL=https://github.com/feelpp/quickstart --build-arg=BUILD_JOBS=1 .
   
 install:
-- $CXX --version
-- $CC --version
-- mkdir opt-$BUILD && cd opt-$BUILD && ../configure --build=$BUILDTYPE -v --cxxflags="$CXXFLAGS"
-  --std=c++$FEELPP_STD_CPP --prefix=$HOME/software/install/feelpp
+- docker run feelpp/develop:latest true
 
 script:
-- make VERBOSE=1
+- true
 
-branches:
-  only:
-  - master
-  - develop
-
-cache:
-- apt
-
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/0dde29566a86c8398c9a
-    on_success: always  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: false     # default: false
