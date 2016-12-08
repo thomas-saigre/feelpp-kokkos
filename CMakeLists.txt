@@ -45,5 +45,5 @@ add_dependencies(quickstart-check quickstart)
 add_dependencies(check quickstart-check)
 
 add_subdirectory(laplacian)
-add_subdirectory(fluid)
-add_subdirectory(solid)
+#add_subdirectory(fluid)
+#add_subdirectory(solid)
