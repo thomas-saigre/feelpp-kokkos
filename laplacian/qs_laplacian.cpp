@@ -30,7 +30,8 @@ int main(int argc, char**argv )
     using namespace Feel;
 	po::options_description laplacianoptions( "Laplacian options" );
 	laplacianoptions.add_options()
-    ( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
+        ( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
+        ( "no-solve", po::value<bool>()->default_value( false ), "No solve" )
 		;
 
 	Environment env( _argc=argc, _argv=argv,
@@ -81,7 +82,8 @@ int main(int argc, char**argv )
     
     tic();
     //! solve the linear system, find u s.t. a(u,v)=l(v) for all v
-    a.solve(_rhs=l,_solution=u);
+    if ( !boption( "no-solve" ) )
+        a.solve(_rhs=l,_solution=u);
     toc("a.solve");
 
     //# endmarker3 #
