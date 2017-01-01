@@ -41,7 +41,7 @@ int main(int argc, char**argv )
     //# endmarker1 #
 
     //# marker2 #
-    auto mesh = loadMesh(_mesh=new Mesh<Simplex<FEELPP_DIM>>);
+    auto mesh = loadMesh(_mesh=new Mesh<Simplex<FEELPP_DIM,1>>);
 
     auto Vh = Pch<2>( mesh );
     auto u = Vh->element("u");
@@ -60,14 +60,23 @@ int main(int argc, char**argv )
                   _expr=f*id(v));
     l+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_2*id(v));
     l+=integrate(_range=markedfaces(mesh,"Neumann"), _expr=n*id(v));
-    
+
     auto a = form2( _trial=Vh, _test=Vh);
     a = integrate(_range=elements(mesh),
                   _expr=mu*gradt(u)*trans(grad(v)) );
     a+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_1*idt(u)*id(v));
     a+=on(_range=markedfaces(mesh,"Dirichlet"), _rhs=l, _element=u, _expr=g );
+
+    //! if no markers Robin Neumann or Dirichlet are present in the mesh then
+    //! impose Dirichlet boundary conditions over the entire boundary
+    if ( !mesh->hasAnyMarker({"Robin", "Neumann","Dirichlet"}) )
+        a+=on(_range=boundaryfaces(mesh), _rhs=l, _element=u, _expr=g );
+
+    //! solve the linear system, find u s.t. a(u,v)=l(v) for all v
     a.solve(_rhs=l,_solution=u);
+
     //# endmarker3 #
+    cout << "||u-u_h||_L2=" << normL2(_range=elements(mesh), _expr=idv(u)-g) << std::endl;
 
     //# marker4 #
     auto e = exporter( _mesh=mesh );
