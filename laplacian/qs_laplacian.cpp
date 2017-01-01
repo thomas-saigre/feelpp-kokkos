@@ -41,8 +41,11 @@ int main(int argc, char**argv )
     //# endmarker1 #
 
     //# marker2 #
+    tic();
     auto mesh = loadMesh(_mesh=new Mesh<Simplex<FEELPP_DIM>>);
+    toc("loadMesh");
 
+    tic();
     auto Vh = Pch<2>( mesh );
     auto u = Vh->element("u");
     auto mu = doption(_name="mu");
@@ -52,29 +55,38 @@ int main(int argc, char**argv )
     auto n = expr( soption(_name="functions.c"), "c" ); // Neumann expression
     auto g = expr( soption(_name="functions.g"), "g" );
     auto v = Vh->element( g, "g" );
+    toc("Vh");
     //# endmarker2 #
 
     //# marker3 #
+    tic();
     auto l = form1( _test=Vh );
     l = integrate(_range=elements(mesh),
                   _expr=f*id(v));
     l+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_2*id(v));
     l+=integrate(_range=markedfaces(mesh,"Neumann"), _expr=n*id(v));
-    
+    toc("l");
+
+    tic();
     auto a = form2( _trial=Vh, _test=Vh);
     a = integrate(_range=elements(mesh),
                   _expr=mu*gradt(u)*trans(grad(v)) );
     a+=integrate(_range=markedfaces(mesh,"Robin"), _expr=r_1*idt(u)*id(v));
     a+=on(_range=markedfaces(mesh,"Dirichlet"), _rhs=l, _element=u, _expr=g );
+    toc("a");
+    tic();
     a.solve(_rhs=l,_solution=u);
+    toc("a.solve");
     //# endmarker3 #
 
     //# marker4 #
+    tic();
     auto e = exporter( _mesh=mesh );
     e->addRegions();
     e->add( "u", u );
     e->add( "g", v );
     e->save();
+    toc("Exporter");
     return 0;
     //# endmarker4 #
 }
