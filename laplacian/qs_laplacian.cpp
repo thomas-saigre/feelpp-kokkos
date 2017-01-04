@@ -28,6 +28,7 @@ int main(int argc, char**argv )
 {
     //# marker1 #
     using namespace Feel;
+    using Feel::cout;
 	po::options_description laplacianoptions( "Laplacian options" );
 	laplacianoptions.add_options()
         ( "mu", po::value<double>()->default_value( 1.0 ), "coeff" )
@@ -79,7 +80,7 @@ int main(int argc, char**argv )
     if ( !mesh->hasAnyMarker({"Robin", "Neumann","Dirichlet"}) )
         a+=on(_range=boundaryfaces(mesh), _rhs=l, _element=u, _expr=g );
     toc("a");
-    
+
     tic();
     //! solve the linear system, find u s.t. a(u,v)=l(v) for all v
     if ( !boption( "no-solve" ) )
