@@ -24,11 +24,10 @@
 # tag::minimal[]
 cmake_minimum_required(VERSION 3.0)
 project(minimal)
-set(PROJECT_SHORTNAME "min")
 
-# find Feel++
+# find Feel++ package
 find_package(Feel++ PATHS $ENV{FEELPP_DIR}/share/feel/cmake/modules /usr/share/feel/cmake/modules /usr/local/share/feel/cmake/modules REQUIRED)
 
-##
+# create application feelpp_minimal
 feelpp_add_application( minimal SRCS minimal.cpp)
 # end::minimal[]
