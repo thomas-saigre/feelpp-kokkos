@@ -26,7 +26,12 @@ cmake_minimum_required(VERSION 3.0) # <1>
 project(minimal) # <2>
 
 # find Feel++ package
-find_package(Feel++ PATHS $ENV{FEELPP_DIR}/share/feelpp/feel/cmake/modules /usr/share/feelpp/cmake/modules /usr/local/share/feelpp/feel/cmake/modules REQUIRED) # <3>
+find_package(Feel++
+  PATHS
+  $ENV{FEELPP_DIR}/share/feelpp/feel/cmake/modules
+  /usr/share/feelpp/cmake/modules
+  /usr/local/share/feelpp/feel/cmake/modules
+  REQUIRED) # <3>
 
 # create application feelpp_minimal
 feelpp_add_application( app SRCS minimal.cpp) # <4>
