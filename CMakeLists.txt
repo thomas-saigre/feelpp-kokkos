@@ -21,6 +21,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 #
+# tag::minimal[]
 cmake_minimum_required(VERSION 3.0)
 project(minimal)
 set(PROJECT_SHORTNAME "min")
@@ -30,3 +31,4 @@ find_package(Feel++ PATHS $ENV{FEELPP_DIR}/share/feel/cmake/modules /usr/share/f
 
 ##
 feelpp_add_application( minimal SRCS minimal.cpp)
+# end::minimal[]
