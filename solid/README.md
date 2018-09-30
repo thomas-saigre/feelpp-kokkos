@@ -1,4 +1,0 @@
-Solid Mechanics {#QSSolidMechanics}
-================
-
-
