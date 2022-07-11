@@ -29,6 +29,7 @@ project(minimal) # <2>
 find_package(Feel++
   PATHS
   $ENV{FEELPP_DIR}/share/feelpp/feel/cmake/modules
+  /usr/share/feelpp/feel/cmake/modules
   /usr/share/feelpp/cmake/modules
   /usr/local/share/feelpp/feel/cmake/modules
   REQUIRED) # <3>
