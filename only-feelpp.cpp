@@ -1,6 +1,4 @@
 #include <feel/feel.hpp>
-#include <Kokkos_Core.hpp>
-
 
 int main( int argc, char* argv[] )
 {
